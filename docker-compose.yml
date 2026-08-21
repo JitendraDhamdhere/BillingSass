@@ -14,6 +14,40 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
     restart: unless-stopped
+    networks:
+      - shop_billing_net
+
+  backend:
+    build:
+      context: ./backend
+    container_name: shop_billing_backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/shop_billing
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: password
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+    restart: unless-stopped
+    networks:
+      - shop_billing_net
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: shop_billing_frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - shop_billing_net
 
 volumes:
   mysql_data:
+
+networks:
+  shop_billing_net:
+    driver: bridge

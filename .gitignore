@@ -9,3 +9,9 @@ frontend/dist/
 
 .env
 *.log
+
+target/
+node_modules/
+dist/
+
+
