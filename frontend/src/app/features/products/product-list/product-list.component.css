@@ -1,0 +1,29 @@
+.page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.page-header h2 { margin: 0; font-size: 24px; font-weight: 700; color: var(--text-primary); }
+.table-container { 
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.table-scroll {
+  overflow: auto;
+  max-height: 50vh;
+}
+.custom-table { width: 100%; background: transparent; }
+::ng-deep .mat-mdc-header-cell { 
+  color: var(--text-secondary); 
+  font-weight: 600; 
+  font-size: 13px; 
+  text-transform: uppercase; 
+  letter-spacing: 0.5px; 
+  border-bottom: 1px solid var(--border); 
+  background: var(--surface) !important; 
+  z-index: 100 !important;
+}
+::ng-deep .mat-mdc-cell { color: var(--text-primary); font-size: 14px; border-bottom: 1px solid var(--border); }
+::ng-deep .mat-mdc-row:hover { background: rgba(15, 23, 42, 0.02); }
+::ng-deep .mat-mdc-paginator { background: transparent; border-top: 1px solid var(--border); }

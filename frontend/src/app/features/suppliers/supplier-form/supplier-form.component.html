@@ -1,0 +1,71 @@
+<div class="page-header">
+  <div class="header-left">
+    <button mat-icon-button routerLink="/suppliers" class="back-btn"><mat-icon>arrow_back</mat-icon></button>
+    <h2>{{ isEditMode ? 'Edit' : 'New' }} Supplier</h2>
+  </div>
+</div>
+
+<div class="form-container">
+  <mat-card class="glass-card form-card">
+    <mat-card-header class="form-card-header">
+      <mat-card-title>Supplier Details</mat-card-title>
+      <mat-card-subtitle>Enter the required supplier information below.</mat-card-subtitle>
+    </mat-card-header>
+    
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <mat-card-content class="form-content">
+        <div class="form-grid">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Supplier Code</mat-label>
+            <input matInput formControlName="supplierCode" type="text" readonly />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Contact Name *</mat-label>
+            <input matInput formControlName="name" type="text" />
+            <mat-error *ngIf="form.get('name')?.hasError('required')">Contact Name is required</mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Company Name</mat-label>
+            <input matInput formControlName="companyName" type="text" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Mobile</mat-label>
+            <input matInput formControlName="mobile" type="text" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Email</mat-label>
+            <input matInput formControlName="email" type="email" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>City</mat-label>
+            <input matInput formControlName="city" type="text" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>State</mat-label>
+            <input matInput formControlName="state" type="text" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Pincode</mat-label>
+            <input matInput formControlName="pincode" type="text" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>GST Number</mat-label>
+            <input matInput formControlName="gstNumber" type="text" />
+          </mat-form-field>
+        </div>
+        <div style="margin-top: 20px;">
+          <mat-form-field appearance="outline" class="full-width" style="width: 100%;">
+            <mat-label>Address</mat-label>
+            <textarea matInput formControlName="address" rows="3"></textarea>
+          </mat-form-field>
+        </div>
+      </mat-card-content>
+      <mat-card-actions align="end" class="form-actions" style="padding: 20px; border-top: 1px solid var(--border);">
+        <button mat-button type="button" routerLink="/suppliers" class="cancel-btn">Cancel</button>
+        <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid" class="save-btn">
+          <mat-icon>save</mat-icon> Save Supplier
+        </button>
+      </mat-card-actions>
+    </form>
+  </mat-card>
+</div>

@@ -1,0 +1,198 @@
+<div class="dashboard-header">
+  <div>
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <h1 class="page-title" style="margin: 0;">Business Dashboard</h1>
+      <button mat-icon-button (click)="refreshMetrics()" [disabled]="loading" matTooltip="Refresh real-time analytics">
+        <mat-icon [class.spin-animation]="loading">refresh</mat-icon>
+      </button>
+    </div>
+    <p class="body-text">Real-time updates for your shop's operations.</p>
+  </div>
+  
+  <div style="display: flex; gap: 16px; align-items: center;">
+    <span class="live-indicator" style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--success); font-weight: 600; padding: 6px 12px; background: rgba(16, 185, 129, 0.1); border-radius: 12px;">
+      <span class="blink-dot"></span> LIVE AUTO-REFRESH
+    </span>
+    <button mat-flat-button color="primary" routerLink="/sales">
+      <mat-icon>point_of_sale</mat-icon> New Sale
+    </button>
+  </div>
+</div>
+
+<div class="kpi-grid" *ngIf="metrics">
+  <mat-card class="kpi-card">
+    <mat-card-content>
+      <div class="kpi-icon-box text-primary bg-primary-light">
+        <mat-icon>currency_rupee</mat-icon>
+      </div>
+      <div class="kpi-details">
+        <span class="kpi-label">Today's Sales</span>
+        <span class="kpi-value">₹{{ metrics.todaySales | number:'1.0-0' }}</span>
+      </div>
+      <div class="kpi-accent accent-primary"></div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="kpi-card">
+    <mat-card-content>
+      <div class="kpi-icon-box text-secondary bg-secondary-light">
+        <mat-icon>local_shipping</mat-icon>
+      </div>
+      <div class="kpi-details">
+        <span class="kpi-label">Today's Purchases</span>
+        <span class="kpi-value">₹{{ metrics.todayPurchases | number:'1.0-0' }}</span>
+      </div>
+      <div class="kpi-accent accent-secondary"></div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="kpi-card">
+    <mat-card-content>
+      <div class="kpi-icon-box" [ngClass]="metrics.todaySales - metrics.todayPurchases >= 0 ? 'text-success bg-success-light' : 'text-danger bg-danger-light'">
+        <mat-icon>{{ metrics.todaySales - metrics.todayPurchases >= 0 ? 'trending_up' : 'trending_down' }}</mat-icon>
+      </div>
+      <div class="kpi-details">
+        <span class="kpi-label">Today's Net Flow</span>
+        <span class="kpi-value" [style.color]="metrics.todaySales - metrics.todayPurchases >= 0 ? 'var(--success)' : 'var(--danger)'">
+          ₹{{ metrics.todaySales - metrics.todayPurchases | number:'1.0-0' }}
+        </span>
+      </div>
+      <div class="kpi-accent" [ngClass]="metrics.todaySales - metrics.todayPurchases >= 0 ? 'accent-success' : 'accent-danger'"></div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="kpi-card">
+    <mat-card-content>
+      <div class="kpi-icon-box text-success bg-success-light">
+        <mat-icon>inventory_2</mat-icon>
+      </div>
+      <div class="kpi-details">
+        <span class="kpi-label">Total Products</span>
+        <span class="kpi-value">{{ metrics.totalProducts }}</span>
+      </div>
+      <div class="kpi-accent accent-success"></div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="kpi-card">
+    <mat-card-content>
+      <div class="kpi-icon-box text-warning bg-warning-light">
+        <mat-icon>warning_amber</mat-icon>
+      </div>
+      <div class="kpi-details">
+        <span class="kpi-label">Low Stock</span>
+        <span class="kpi-value">{{ metrics.lowStockCount }} Items</span>
+      </div>
+      <div class="kpi-accent accent-warning"></div>
+    </mat-card-content>
+  </mat-card>
+</div>
+
+<div class="dashboard-content">
+  <mat-card class="chart-card">
+    <mat-card-header>
+      <mat-card-title>Recent Activity</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+
+      <table mat-table [dataSource]="filteredRecentSales" class="mat-elevation-z0" style="width: 100%;" *ngIf="metrics.recentSales && metrics.recentSales.length > 0">
+        <ng-container matColumnDef="saleNumber">
+          <th mat-header-cell *matHeaderCellDef> Invoice # </th>
+          <td mat-cell *matCellDef="let element"> {{element.saleNumber}} </td>
+        </ng-container>
+        <ng-container matColumnDef="date">
+          <th mat-header-cell *matHeaderCellDef> Date </th>
+          <td mat-cell *matCellDef="let element"> {{element.saleDate | date:'short'}} </td>
+        </ng-container>
+        <ng-container matColumnDef="customer">
+          <th mat-header-cell *matHeaderCellDef> Customer </th>
+          <td mat-cell *matCellDef="let element"> {{element.customerName}} </td>
+        </ng-container>
+        <ng-container matColumnDef="grandTotal">
+          <th mat-header-cell *matHeaderCellDef> Total </th>
+          <td mat-cell *matCellDef="let element"> ₹{{element.grandTotal | number:'1.2-2'}} </td>
+        </ng-container>
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef> Status </th>
+          <td mat-cell *matCellDef="let element"> 
+            <span class="status-badge" [class.status-paid]="element.paymentStatus === 'PAID'">{{element.paymentStatus}}</span>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef> Actions </th>
+          <td mat-cell *matCellDef="let element">
+            <button mat-icon-button color="primary" (click)="printReceipt(element)" matTooltip="Download PDF Receipt">
+              <mat-icon>print</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+      
+      <div class="empty-state" *ngIf="!metrics.recentSales || metrics.recentSales.length === 0">
+        <mat-icon>bar_chart</mat-icon>
+        <p>No recent invoices found.</p>
+      </div>
+
+    </mat-card-content>
+  </mat-card>
+</div>
+
+<!-- Custom Glassmorphic Receipt Modal -->
+<div class="modal-backdrop" *ngIf="showReceiptModal" (click)="closeReceiptModal()">
+  <div class="glass-modal modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Invoice Receipt</h2>
+      <button mat-icon-button (click)="closeReceiptModal()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    
+    <div class="modal-body" id="print-section">
+      <div class="receipt-header">
+        <h2>ShopBilling POS</h2>
+        <p>Receipt</p>
+      </div>
+      <div class="receipt-details">
+        <p><strong>Invoice #:</strong> {{ selectedSale?.saleNumber }}</p>
+        <p><strong>Date:</strong> {{ formatDate(selectedSale?.saleDate) }}</p>
+        <p><strong>Customer:</strong> {{ selectedSale?.customerName }}</p>
+        <p><strong>Cashier:</strong> {{ selectedSale?.cashier || 'Admin' }}</p>
+      </div>
+      <table class="receipt-table">
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th style="text-align: right;">Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Grand Total</td>
+            <td style="text-align: right; font-weight: bold;">₹{{ selectedSale?.grandTotal | number:'1.2-2' }}</td>
+          </tr>
+          <tr>
+            <td>Status</td>
+            <td style="text-align: right;">
+              <span class="status-badge" [class.status-paid]="selectedSale?.paymentStatus === 'PAID'">
+                {{ selectedSale?.paymentStatus }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="receipt-footer">
+        <p>Thank you for your business!</p>
+      </div>
+    </div>
+    
+    <div class="modal-actions">
+      <button mat-button (click)="closeReceiptModal()">Close</button>
+      <button mat-flat-button color="primary" (click)="printCurrentReceipt()">
+        <mat-icon>print</mat-icon> Print
+      </button>
+    </div>
+  </div>
+</div>

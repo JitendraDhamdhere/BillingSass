@@ -1,0 +1,43 @@
+<div class="login-container fade-in">
+  <div class="login-decorations">
+    <div class="circle circle-1"></div>
+    <div class="circle circle-2"></div>
+  </div>
+  <div class="login-card-wrapper glass-card">
+    <div class="brand-header">
+      <div class="logo-box"><mat-icon class="brand-icon">storefront</mat-icon></div>
+      <h1>ShopBilling</h1>
+      <p class="subtitle">Shop Management System</p>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+      <div class="form-group">
+        <label>Username</label>
+        <mat-form-field appearance="outline" class="full-width">
+          <input matInput formControlName="username" placeholder="Enter username" />
+          <mat-icon matPrefix>person_outline</mat-icon>
+          <mat-error *ngIf="loginForm.get('username')?.hasError('required')">Username is required</mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-group">
+        <label>Password</label>
+        <mat-form-field appearance="outline" class="full-width">
+          <input matInput formControlName="password" type="password" placeholder="Enter password" />
+          <mat-icon matPrefix>lock_outline</mat-icon>
+          <mat-error *ngIf="loginForm.get('password')?.hasError('required')">Password is required</mat-error>
+        </mat-form-field>
+      </div>
+
+      <div *ngIf="error" class="error-message status-badge status-danger">
+        <mat-icon style="font-size:16px; width:16px; height:16px; margin-right:4px; vertical-align:middle;">error_outline</mat-icon>
+        {{ error }}
+      </div>
+
+      <button mat-flat-button color="primary" type="submit" [disabled]="loginForm.invalid || loading" class="submit-btn full-width">
+        <span *ngIf="!loading">Sign In</span>
+        <span *ngIf="loading">Signing in...</span>
+      </button>
+    </form>
+  </div>
+</div>

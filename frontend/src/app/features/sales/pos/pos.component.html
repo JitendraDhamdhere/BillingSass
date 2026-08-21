@@ -1,0 +1,174 @@
+<div class="pos-container">
+  <!-- Left Side: Products & Search -->
+  <div class="pos-products glass-panel">
+    <div class="search-bar">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Search Product (Name, Barcode, Code)</mat-label>
+        <input matInput 
+               [(ngModel)]="searchQuery" 
+               [matAutocomplete]="auto"
+               (ngModelChange)="onSearchChange()"
+               (keydown.enter)="onSearchEnter($event)"
+               placeholder="Scan or type..." />
+        <mat-icon matPrefix>search</mat-icon>
+        <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onProductSelected($event)">
+          <mat-option *ngFor="let product of autocompleteSuggestions" [value]="product.name">
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+              <div>
+                <strong style="font-size: 14px; color: var(--text-primary);">{{product.name}}</strong>
+                <span style="font-size: 11px; color: var(--text-muted); margin-left: 8px;">Code: {{product.productCode}}</span>
+              </div>
+              <span style="font-weight: 600; color: var(--primary);">₹{{product.sellingPrice}}</span>
+            </div>
+          </mat-option>
+        </mat-autocomplete>
+      </mat-form-field>
+    </div>
+
+    <div class="product-grid">
+      <mat-card class="product-card" *ngFor="let product of filteredProducts" (click)="addToCart(product)">
+        <div class="product-image-placeholder" style="padding: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; height: 90px;">
+          <img *ngIf="product.image" [src]="product.image" style="width: 100%; height: 100%; object-fit: cover;" />
+          <mat-icon *ngIf="!product.image">image</mat-icon>
+        </div>
+        <mat-card-content class="product-details">
+          <h4>{{ product.name }}</h4>
+          <span class="price">₹{{ product.sellingPrice }}</span>
+          <span class="stock" [class.low-stock]="product.currentStock < 10">Stock: {{ product.currentStock }}</span>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+
+  <!-- Right Side: Cart & Checkout -->
+  <div class="pos-cart glass-panel">
+    <div class="cart-header">
+      <h3>Current Sale</h3>
+      <button mat-icon-button color="warn" (click)="cart = []" [disabled]="cart.length === 0">
+        <mat-icon>delete_sweep</mat-icon>
+      </button>
+    </div>
+
+    <!-- Customer Selection -->
+    <div class="customer-selection">
+      <div *ngIf="!selectedCustomer" class="customer-search-wrapper">
+        <mat-form-field appearance="outline" class="customer-search-field">
+          <mat-label>Customer (Name/Mobile/Email)</mat-label>
+          <input matInput 
+                 [(ngModel)]="customerSearchQuery" 
+                 [matAutocomplete]="custAuto"
+                 (ngModelChange)="onCustomerSearchChange()"
+                 (keydown.enter)="onCustomerSearchEnter($event)"
+                 (keydown.tab)="onCustomerSearchEnter($event)"
+                 placeholder="Search customer..." />
+          <mat-icon matPrefix>person_search</mat-icon>
+          <mat-autocomplete #custAuto="matAutocomplete" (optionSelected)="onCustomerSelected($event)">
+            <mat-option *ngFor="let customer of customerSuggestions" [value]="customer.name">
+              <div style="display: flex; flex-direction: column;">
+                <strong style="font-size: 13px; color: var(--text-primary);">{{customer.name}}</strong>
+                <span style="font-size: 11px; color: var(--text-muted);">Mob: {{customer.mobile || 'N/A'}} | {{customer.email || 'N/A'}}</span>
+              </div>
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field>
+        <button mat-icon-button color="primary" type="button" (click)="showQuickCustomerModal = true" matTooltip="Quick Add Customer">
+          <mat-icon>person_add</mat-icon>
+        </button>
+      </div>
+      
+      <div *ngIf="selectedCustomer" class="selected-customer-badge">
+        <div class="selected-customer-info">
+          <mat-icon color="primary">person</mat-icon>
+          <div class="selected-customer-details">
+            <span class="selected-customer-name">{{ selectedCustomer.name }}</span>
+            <span class="selected-customer-meta">{{ selectedCustomer.mobile || 'No Mobile' }} | {{ selectedCustomer.email || 'No Email' }}</span>
+          </div>
+        </div>
+        <button mat-icon-button color="warn" type="button" (click)="removeSelectedCustomer()" class="small-btn">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="cart-items">
+      <div class="empty-cart" *ngIf="cart.length === 0">
+        <mat-icon>remove_shopping_cart</mat-icon>
+        <p>Cart is empty</p>
+      </div>
+      
+      <div class="cart-item" *ngFor="let item of cart; let i = index">
+        <div class="item-info">
+          <span class="item-name">{{ item.product.name }}</span>
+          <span class="item-price">₹{{ item.product.sellingPrice }} x {{ item.quantity }}</span>
+        </div>
+        <div class="item-actions">
+          <div class="qty-control">
+            <button mat-icon-button class="small-btn" (click)="item.quantity = item.quantity > 1 ? item.quantity - 1 : 1"><mat-icon>remove</mat-icon></button>
+            <span>{{ item.quantity }}</span>
+            <button mat-icon-button class="small-btn" (click)="item.quantity = item.quantity + 1"><mat-icon>add</mat-icon></button>
+          </div>
+          <button mat-icon-button color="warn" class="small-btn" (click)="removeFromCart(i)"><mat-icon>close</mat-icon></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="cart-summary">
+      <div class="summary-row">
+        <span>Subtotal</span>
+        <span>₹{{ getSubtotal() | number:'1.2-2' }}</span>
+      </div>
+      <div class="summary-row">
+        <span>Discount (₹)</span>
+        <input type="number" [(ngModel)]="discount" class="minimal-input" min="0" />
+      </div>
+      <div class="summary-row">
+        <span>Tax (%)</span>
+        <input type="number" [(ngModel)]="taxPercentage" class="minimal-input" min="0" max="100" />
+      </div>
+      <div class="summary-row">
+        <span>Tax Amount</span>
+        <span>₹{{ getTax() | number:'1.2-2' }}</span>
+      </div>
+      <div class="summary-row grand-total">
+        <span>Total</span>
+        <span>₹{{ getGrandTotal() | number:'1.2-2' }}</span>
+      </div>
+      
+      <button mat-flat-button color="primary" class="checkout-btn" [disabled]="cart.length === 0" (click)="checkout()">
+        <mat-icon>payment</mat-icon> Complete Sale
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Quick Add Customer Modal -->
+<div class="modal-backdrop" *ngIf="showQuickCustomerModal" (click)="showQuickCustomerModal = false">
+  <div class="glass-modal modal-content" (click)="$event.stopPropagation()" style="max-width: 380px;">
+    <div class="modal-header">
+      <h2>Quick Add Customer</h2>
+      <button mat-icon-button (click)="showQuickCustomerModal = false">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    
+    <div class="modal-body" style="background: transparent; border: none; box-shadow: none; padding: 0; overflow-y: visible;">
+      <mat-form-field appearance="outline" class="full-width" style="margin-bottom: 12px; width: 100%;">
+        <mat-label>Customer Name</mat-label>
+        <input matInput [(ngModel)]="quickCustomerName" placeholder="Enter name" required (keydown.enter)="saveQuickCustomer()" />
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="full-width" style="margin-bottom: 12px; width: 100%;">
+        <mat-label>Mobile Number</mat-label>
+        <input matInput [(ngModel)]="quickCustomerMobile" placeholder="Enter mobile number" (keydown.enter)="saveQuickCustomer()" />
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="full-width" style="margin-bottom: 12px; width: 100%;">
+        <mat-label>Email Address</mat-label>
+        <input matInput [(ngModel)]="quickCustomerEmail" placeholder="Enter email address" (keydown.enter)="saveQuickCustomer()" />
+      </mat-form-field>
+    </div>
+    
+    <div class="modal-actions" style="margin-top: 12px; border-top: 1px solid var(--border); padding-top: 12px;">
+      <button mat-button (click)="showQuickCustomerModal = false">Cancel</button>
+      <button mat-flat-button color="primary" [disabled]="!quickCustomerName" (click)="saveQuickCustomer()">Save Customer</button>
+    </div>
+  </div>
+</div>

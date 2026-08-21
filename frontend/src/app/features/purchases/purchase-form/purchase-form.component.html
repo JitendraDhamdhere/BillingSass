@@ -1,0 +1,63 @@
+<div class="page-header">
+  <div class="header-left">
+    <button mat-icon-button routerLink="/inventory" class="back-btn"><mat-icon>arrow_back</mat-icon></button>
+    <h2>{{ isEditMode ? 'Edit' : 'New' }} Purchase Entry</h2>
+  </div>
+</div>
+<mat-card class="glass-card">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <mat-card-content style="padding: 20px;">
+      <div style="display:flex; gap: 20px;">
+        <mat-form-field appearance="outline" style="flex:1;">
+          <mat-label>Select Supplier *</mat-label>
+          <mat-select formControlName="supplierId">
+            <mat-option *ngFor="let s of suppliers" [value]="s.id">{{ s.name }}</mat-option>
+          </mat-select>
+          <mat-error *ngIf="form.get('supplierId')?.hasError('required')">Supplier is required</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" style="flex:1;">
+          <mat-label>Total Discount Amount</mat-label>
+          <input matInput type="number" formControlName="discount" />
+        </mat-form-field>
+      </div>
+      <mat-form-field appearance="outline" style="width:100%;">
+        <mat-label>Notes</mat-label>
+        <input matInput formControlName="notes" />
+      </mat-form-field>
+
+      <h3>Purchase Items</h3>
+      <div formArrayName="items">
+        <div *ngFor="let item of items.controls; let i=index" [formGroupName]="i" style="display:flex; gap:10px; align-items:flex-start; margin-bottom:12px; flex-wrap: wrap;">
+          <mat-form-field appearance="outline" style="flex:2; min-width: 200px;">
+            <mat-label>Select Product *</mat-label>
+            <mat-select formControlName="productId">
+              <mat-option *ngFor="let p of products" [value]="p.id">{{ p.name }} (Code: {{p.productCode}})</mat-option>
+            </mat-select>
+            <mat-error *ngIf="item.get('productId')?.hasError('required')">Product is required</mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="outline" style="flex:1; min-width: 100px;">
+            <mat-label>Purchase Quantity *</mat-label>
+            <input matInput type="number" formControlName="quantity" />
+            <mat-error *ngIf="item.get('quantity')?.hasError('required')">Required</mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="outline" style="flex:1; min-width: 100px;">
+            <mat-label>Unit Purchase Price *</mat-label>
+            <input matInput type="number" formControlName="purchasePrice" />
+            <mat-error *ngIf="item.get('purchasePrice')?.hasError('required')">Required</mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="outline" style="flex:1; min-width: 100px;">
+            <mat-label>Tax Amount *</mat-label>
+            <input matInput type="number" formControlName="tax" />
+            <mat-error *ngIf="item.get('tax')?.hasError('required')">Required</mat-error>
+          </mat-form-field>
+          <button mat-icon-button color="warn" type="button" (click)="removeItem(i)" style="margin-top: 4px;"><mat-icon>delete</mat-icon></button>
+        </div>
+      </div>
+      <button mat-stroked-button type="button" (click)="addItem()"><mat-icon>add</mat-icon> Add Row</button>
+    </mat-card-content>
+    <mat-card-actions align="end" style="padding: 20px; border-top: 1px solid var(--border);">
+      <button mat-button type="button" routerLink="/inventory">Cancel</button>
+      <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || items.length === 0">Submit Purchase</button>
+    </mat-card-actions>
+  </form>
+</mat-card>

@@ -1,0 +1,67 @@
+<div class="page-header">
+  <h2>Products</h2>
+  <button mat-flat-button color="primary" [routerLink]="['new']">
+    <mat-icon>add</mat-icon> Add Product
+  </button>
+</div>
+
+<div class="glass-panel table-container">
+  <div class="table-scroll">
+    <table mat-table [dataSource]="filteredData" class="custom-table">
+
+    <ng-container matColumnDef="image">
+      <th mat-header-cell *matHeaderCellDef> Image </th>
+      <td mat-cell *matCellDef="let element">
+        <div style="width: 40px; height: 40px; border-radius: var(--radius-sm); overflow: hidden; border: 1px solid var(--border); background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center;">
+          <img *ngIf="element.image" [src]="element.image" style="width: 100%; height: 100%; object-fit: cover;" />
+          <mat-icon *ngIf="!element.image" style="color: var(--text-muted); font-size: 18px; width: 18px; height: 18px;">image</mat-icon>
+        </div>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="productCode">
+      <th mat-header-cell *matHeaderCellDef> Code </th>
+      <td mat-cell *matCellDef="let element"> {{element.productCode}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef> Name </th>
+      <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="sellingPrice">
+      <th mat-header-cell *matHeaderCellDef> Price </th>
+      <td mat-cell *matCellDef="let element"> ₹{{element.sellingPrice | number:'1.2-2'}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="currentStock">
+      <th mat-header-cell *matHeaderCellDef> Stock </th>
+      <td mat-cell *matCellDef="let element"> {{element.currentStock}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="status">
+      <th mat-header-cell *matHeaderCellDef> Status </th>
+      <td mat-cell *matCellDef="let element"> {{element.status}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef> Actions </th>
+      <td mat-cell *matCellDef="let element">
+        <button mat-icon-button color="primary" [routerLink]="[element.id, 'edit']">
+          <mat-icon>edit</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+  </div>
+
+  <mat-paginator 
+    [length]="totalElements"
+    [pageSize]="pageSize"
+    [pageSizeOptions]="[10, 20, 50]"
+    (page)="onPageChange($event)">
+  </mat-paginator>
+</div>

@@ -1,0 +1,22 @@
+.page-header { margin-bottom: 24px; }
+.header-left { display: flex; align-items: center; gap: 12px; }
+.header-left h2 { margin: 0; font-size: 24px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.5px;}
+.back-btn { background: var(--surface-glass); border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
+.back-btn mat-icon { color: var(--text-secondary); }
+
+.form-container { display: flex; justify-content: flex-start; }
+.form-card { width: 100%; max-width: 700px; }
+.form-card-header { padding: 24px 24px 0 24px !important; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 16px !important;}
+.mat-mdc-card-title { font-size: 18px; font-weight: 600; color: var(--text-primary); }
+.mat-mdc-card-subtitle { color: var(--text-secondary); margin-top: 4px; }
+
+.form-content { padding: 0 24px !important; }
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px 20px; }
+.form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; }
+.custom-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-left: 4px;}
+.full-width { width: 100%; }
+
+.form-actions { padding: 16px 24px 24px 24px !important; border-top: 1px solid var(--border); gap: 12px; margin-top: 16px;}
+.cancel-btn { color: var(--text-secondary) !important; font-weight: 600 !important; }
+.save-btn { height: 44px; }
+.save-btn mat-icon { margin-right: 4px; }

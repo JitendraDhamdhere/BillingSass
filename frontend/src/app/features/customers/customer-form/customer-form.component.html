@@ -1,0 +1,83 @@
+<div class="page-header">
+  <div class="header-left">
+    <button mat-icon-button routerLink="/customers" class="back-btn"><mat-icon>arrow_back</mat-icon></button>
+    <h2>{{ isEditMode ? 'Edit' : 'New' }} Customer</h2>
+  </div>
+</div>
+
+<div class="form-container">
+  <mat-card class="glass-card form-card">
+    <mat-card-header class="form-card-header">
+      <mat-card-title>Customer Details</mat-card-title>
+      <mat-card-subtitle>Enter the required customer information below.</mat-card-subtitle>
+    </mat-card-header>
+    
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <mat-card-content class="form-content">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="custom-label">Customer Code (Auto Generated)</label>
+            <mat-form-field appearance="outline" class="full-width">
+              <input matInput formControlName="customerCode" type="text" placeholder="Enter customer code (auto generated)"  readonly />
+            </mat-form-field>
+          </div>
+          <div class="form-group">
+            <label class="custom-label">Full Name *</label>
+            <mat-form-field appearance="outline" class="full-width">
+              <input matInput formControlName="name" type="text" placeholder="Enter full name"  />
+              <mat-error *ngIf="form.get('name')?.hasError('required')">Full Name is required</mat-error>
+            </mat-form-field>
+          </div>
+          <div class="form-group">
+            <label class="custom-label">Mobile Number</label>
+            <mat-form-field appearance="outline" class="full-width">
+              <input matInput formControlName="mobile" type="text" placeholder="Enter mobile number"  />
+            </mat-form-field>
+          </div>
+          <div class="form-group">
+            <label class="custom-label">Email Address</label>
+            <mat-form-field appearance="outline" class="full-width">
+              <input matInput formControlName="email" type="text" placeholder="Enter email address"  />
+            </mat-form-field>
+          </div>
+          <div class="form-group">
+            <label class="custom-label">Street Address</label>
+            <mat-form-field appearance="outline" class="full-width">
+              <input matInput formControlName="address" type="text" placeholder="Enter street address"  />
+            </mat-form-field>
+          </div>
+          <div class="form-group">
+            <label class="custom-label">City</label>
+            <mat-form-field appearance="outline" class="full-width">
+              <input matInput formControlName="city" type="text" placeholder="Enter city"  />
+            </mat-form-field>
+          </div>
+          <div class="form-group">
+            <label class="custom-label">State / Province</label>
+            <mat-form-field appearance="outline" class="full-width">
+              <input matInput formControlName="state" type="text" placeholder="Enter state / province"  />
+            </mat-form-field>
+          </div>
+          <div class="form-group">
+            <label class="custom-label">Pincode / ZIP</label>
+            <mat-form-field appearance="outline" class="full-width">
+              <input matInput formControlName="pincode" type="text" placeholder="Enter pincode / zip"  />
+            </mat-form-field>
+          </div>
+          <div class="form-group">
+            <label class="custom-label">GST / Tax Number</label>
+            <mat-form-field appearance="outline" class="full-width">
+              <input matInput formControlName="gstNumber" type="text" placeholder="Enter gst / tax number"  />
+            </mat-form-field>
+          </div>
+        </div>
+      </mat-card-content>
+      <mat-card-actions align="end" class="form-actions">
+        <button mat-button type="button" routerLink="/customers" class="cancel-btn">Cancel</button>
+        <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid" class="save-btn">
+          <mat-icon>save</mat-icon> Save Customer
+        </button>
+      </mat-card-actions>
+    </form>
+  </mat-card>
+</div>

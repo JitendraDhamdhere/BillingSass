@@ -1,0 +1,31 @@
+<router-outlet></router-outlet>
+
+<div class="toast-container">
+  @for (toast of toasts(); track toast.id) {
+    <div class="toast-item" [class]="toast.type">
+      <div class="toast-icon">
+        @if (toast.type === 'success') {
+          <span class="material-icons">check_circle</span>
+        } @else if (toast.type === 'error') {
+          <span class="material-icons">error_outline</span>
+        } @else if (toast.type === 'warning') {
+          <span class="material-icons">warning_amber</span>
+        } @else {
+          <span class="material-icons">info_outline</span>
+        }
+      </div>
+      <div class="toast-content">
+        <div class="toast-title">
+          @if (toast.type === 'success') { Success }
+          @else if (toast.type === 'error') { Error }
+          @else if (toast.type === 'warning') { Warning }
+          @else { Info }
+        </div>
+        <div class="toast-message">{{ toast.message }}</div>
+      </div>
+      <button class="toast-close" (click)="dismiss(toast.id)" aria-label="Close notification">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+  }
+</div>
