@@ -1,0 +1,11 @@
+services:
+  - type: static
+    name: billingsass-frontend
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist/frontend/browser
+    routes:
+      # Rewrite all routes to index.html for Angular client-side SPA routing
+      - type: rewrite
+        source: /*
+        destination: /index.html

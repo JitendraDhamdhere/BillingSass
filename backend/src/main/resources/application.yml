@@ -27,7 +27,7 @@ app:
     secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
     expiration: ${JWT_EXPIRATION:86400000} # 24 hours
   cors:
-    allowed-origins: ${FRONTEND_URL:http://localhost:4200}
+    allowed-origins: ${FRONTEND_URL:http://localhost:4200,https://billingsass-frontend.onrender.com}
 
 logging:
   level:
