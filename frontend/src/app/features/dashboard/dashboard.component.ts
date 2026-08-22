@@ -76,8 +76,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   printReceipt(sale: any) {
-    this.selectedSale = sale;
-    this.showReceiptModal = true;
+    this.saleService.getSaleDetails(sale.id).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.selectedSale = res.data;
+          this.showReceiptModal = true;
+        }
+      },
+      error: (err) => {
+        console.error('Failed to load sale details', err);
+      }
+    });
   }
 
   closeReceiptModal() {
@@ -103,25 +112,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
           <head>
             <title>Receipt</title>
             <style>
-              body { font-family: Arial, sans-serif; padding: 20px; color: #333; }
-              .receipt-header { text-align: center; margin-bottom: 20px; }
-              .receipt-header h2 { margin: 0; font-size: 20px; }
-              .receipt-header p { margin: 5px 0 0 0; font-size: 14px; color: #666; }
-              .receipt-details { margin-bottom: 20px; border-bottom: 1px solid #ccc; padding-bottom: 10px; }
-              .receipt-details p { margin: 6px 0; font-size: 14px; }
-              table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-              th, td { text-align: left; padding: 8px; border-bottom: 1px solid #eee; font-size: 14px; }
-              .text-right { text-align: right; }
-              .font-bold { font-weight: bold; }
-              .status-badge { 
-                padding: 3px 8px; 
-                border-radius: 12px; 
-                font-size: 11px; 
-                font-weight: 600; 
-                color: #047857;
-                background: rgba(16, 185, 129, 0.15);
-              }
-              .receipt-footer { text-align: center; margin-top: 30px; font-size: 12px; color: #666; }
+              body { font-family: 'Courier New', Courier, monospace; padding: 10px; color: #000; width: 80mm; margin: 0 auto; }
+              .receipt-header { text-align: center; margin-bottom: 15px; }
+              .receipt-header h2 { margin: 0; font-size: 18px; font-weight: bold; }
+              .receipt-header p { margin: 3px 0 0 0; font-size: 12px; color: #333; }
+              .receipt-details { margin-bottom: 15px; border-bottom: 1px dashed #000; padding-bottom: 10px; font-size: 12px; line-height: 1.4; display: grid; grid-template-columns: 1fr; gap: 4px; }
+              table { width: 100%; border-collapse: collapse; margin-top: 5px; font-size: 12px; }
+              th { text-align: left; padding: 4px 0; border-bottom: 1px solid #000; font-weight: bold; }
+              td { padding: 6px 0; border-bottom: 1px solid #eee; }
+              .receipt-summary-block { border-top: 1px dashed #000; padding-top: 8px; margin-top: 8px; font-size: 12px; }
+              .receipt-summary-block div { display: flex; justify-content: space-between; margin-bottom: 3px; }
+              .payments-details-block { border-top: 1px solid #000; padding-top: 8px; margin-top: 8px; font-size: 11px; }
+              .payments-details-block div { display: flex; justify-content: space-between; margin-bottom: 3px; }
+              .receipt-footer { text-align: center; margin-top: 20px; font-size: 11px; border-top: 1px dashed #000; padding-top: 8px; }
+              .status-badge { font-weight: bold; }
             </style>
           </head>
           <body>

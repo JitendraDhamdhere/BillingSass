@@ -151,40 +151,71 @@
     </div>
     
     <div class="modal-body" id="print-section">
-      <div class="receipt-header">
-        <h2>ShopBilling POS</h2>
-        <p>Receipt</p>
+      <div class="receipt-header" style="text-align: center; margin-bottom: 16px;">
+        <h2 style="margin: 0; font-size: 20px; font-weight: 700;">ShopBilling POS</h2>
+        <p style="margin: 4px 0 0 0; font-size: 13px; color: var(--text-muted);">Invoice Receipt</p>
       </div>
-      <div class="receipt-details">
-        <p><strong>Invoice #:</strong> {{ selectedSale?.saleNumber }}</p>
-        <p><strong>Date:</strong> {{ formatDate(selectedSale?.saleDate) }}</p>
-        <p><strong>Customer:</strong> {{ selectedSale?.customerName }}</p>
-        <p><strong>Cashier:</strong> {{ selectedSale?.cashier || 'Admin' }}</p>
+      
+      <div class="receipt-details" style="border-bottom: 1px dashed var(--border); padding-bottom: 12px; margin-bottom: 12px; font-size: 13px; color: var(--text-secondary); display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px;">
+        <div><strong>Invoice #:</strong> {{ selectedSale?.saleNumber }}</div>
+        <div><strong>Date:</strong> {{ formatDate(selectedSale?.saleDate) }}</div>
+        <div><strong>Customer:</strong> {{ selectedSale?.customerName }}</div>
+        <div *ngIf="selectedSale?.customerMobile"><strong>Mobile:</strong> {{ selectedSale?.customerMobile }}</div>
+        <div><strong>Cashier:</strong> {{ selectedSale?.cashier || 'Admin' }}</div>
+        <div><strong>Status:</strong> <span class="status-badge" [class.status-paid]="selectedSale?.paymentStatus === 'PAID'">{{ selectedSale?.paymentStatus }}</span></div>
       </div>
-      <table class="receipt-table">
+      
+      <table class="receipt-table" style="width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 13px;">
         <thead>
-          <tr>
-            <th>Description</th>
-            <th style="text-align: right;">Amount</th>
+          <tr style="border-bottom: 1px solid var(--border); text-align: left; color: var(--text-muted); font-size: 12px;">
+            <th style="padding: 6px 0;">Item Description</th>
+            <th style="text-align: center; padding: 6px 0; width: 60px;">Qty</th>
+            <th style="text-align: right; padding: 6px 0; width: 80px;">Price</th>
+            <th style="text-align: right; padding: 6px 0; width: 80px;">Total</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>Grand Total</td>
-            <td style="text-align: right; font-weight: bold;">₹{{ selectedSale?.grandTotal | number:'1.2-2' }}</td>
-          </tr>
-          <tr>
-            <td>Status</td>
-            <td style="text-align: right;">
-              <span class="status-badge" [class.status-paid]="selectedSale?.paymentStatus === 'PAID'">
-                {{ selectedSale?.paymentStatus }}
-              </span>
-            </td>
+          <tr *ngFor="let item of selectedSale?.items" style="border-bottom: 1px solid rgba(148, 163, 184, 0.08);">
+            <td style="padding: 8px 0; font-weight: 500; color: var(--text-primary);">{{ item.productName }}</td>
+            <td style="text-align: center; padding: 8px 0; color: var(--text-secondary);">{{ item.quantity }}</td>
+            <td style="text-align: right; padding: 8px 0; color: var(--text-secondary);">₹{{ item.sellingPrice | number:'1.2-2' }}</td>
+            <td style="text-align: right; padding: 8px 0; font-weight: 600; color: var(--text-primary);">₹{{ item.total | number:'1.2-2' }}</td>
           </tr>
         </tbody>
       </table>
-      <div class="receipt-footer">
-        <p>Thank you for your business!</p>
+
+      <div class="receipt-summary-block" style="border-top: 1px dashed var(--border); padding-top: 10px; margin-bottom: 14px; font-size: 13px; color: var(--text-secondary);">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+          <span>Subtotal:</span>
+          <span>₹{{ selectedSale?.subtotal | number:'1.2-2' }}</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;" *ngIf="selectedSale?.discount > 0">
+          <span>Discount:</span>
+          <span style="color: #10b981;">- ₹{{ selectedSale?.discount | number:'1.2-2' }}</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;" *ngIf="selectedSale?.tax > 0">
+          <span>Tax:</span>
+          <span>₹{{ selectedSale?.tax | number:'1.2-2' }}</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 16px; font-weight: 800; color: var(--primary); border-top: 1px solid var(--border); padding-top: 6px; margin-top: 6px;">
+          <span>Grand Total:</span>
+          <span>₹{{ selectedSale?.grandTotal | number:'1.2-2' }}</span>
+        </div>
+      </div>
+
+      <div class="payments-details-block" *ngIf="selectedSale?.payments && selectedSale?.payments.length > 0" style="border-top: 1px solid var(--border); padding-top: 10px; margin-bottom: 12px; font-size: 12px;">
+        <strong style="display: block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); font-size: 11px;">Payment Breakdown</strong>
+        <div *ngFor="let p of selectedSale?.payments" style="display: flex; justify-content: space-between; margin-bottom: 4px; color: var(--text-secondary);">
+          <div>
+            <strong>{{ p.paymentMethod }}</strong>
+            <span *ngIf="p.notes" style="font-size: 10px; color: var(--text-muted); display: block;">{{ p.notes }}</span>
+          </div>
+          <strong style="color: var(--text-primary);">₹{{ p.amount | number:'1.2-2' }}</strong>
+        </div>
+      </div>
+
+      <div class="receipt-footer" style="text-align: center; margin-top: 20px; font-size: 12px; color: var(--text-muted); border-top: 1px dashed var(--border); padding-top: 10px;">
+        <p style="margin: 0;">Thank you for your business!</p>
       </div>
     </div>
     

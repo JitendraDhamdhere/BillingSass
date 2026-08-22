@@ -18,4 +18,8 @@ export class SaleService {
   getInvoicePdf(saleId: number): Observable<Blob> {
     return this.http.get(`${environment.apiUrl}/invoices/${saleId}/pdf`, { responseType: 'blob' });
   }
+
+  getSaleDetails(id: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/${id}`);
+  }
 }

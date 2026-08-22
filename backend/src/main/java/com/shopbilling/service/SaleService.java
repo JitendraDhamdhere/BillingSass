@@ -1,6 +1,7 @@
 package com.shopbilling.service;
 
 import java.math.BigDecimal;
+import com.shopbilling.dto.response.SaleDetailsResponse;
 import java.time.LocalDateTime;
 
 import org.springframework.stereotype.Service;
@@ -27,6 +28,8 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class SaleService {
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SaleService.class);
+
     public java.util.List<com.shopbilling.dto.response.SaleResponse> getRecentSales() {
         return saleRepository.findTop5ByOrderBySaleDateDesc().stream().map(s -> {
             com.shopbilling.dto.response.SaleResponse res = new com.shopbilling.dto.response.SaleResponse();
@@ -135,6 +138,54 @@ public class SaleService {
             }
         }
 
+        logger.info("AUDIT TRAIL: Sale completed. SaleID: {}, Cashier: {}, GrandTotal: {}, Payments: {}",
+                savedSale.getId(), username, savedSale.getGrandTotal(), request.getPayments());
+
         return savedSale.getId();
+    }
+
+    @Transactional(readOnly = true)
+    public SaleDetailsResponse getSaleDetails(Long saleId) {
+        Sale sale = saleRepository.findById(saleId)
+                .orElseThrow(() -> new EntityNotFoundException("Sale not found"));
+
+        java.util.List<Payment> dbPayments = paymentRepository.findByTransactionTypeAndTransactionId("SALE", saleId);
+
+        java.util.List<SaleDetailsResponse.ItemDetails> itemDetailsList = sale.getItems().stream().map(item -> {
+            return SaleDetailsResponse.ItemDetails.builder()
+                    .productName(item.getProduct() != null ? item.getProduct().getName() : "Unknown Product")
+                    .quantity(item.getQuantity())
+                    .sellingPrice(item.getSellingPrice())
+                    .discount(item.getDiscount())
+                    .tax(item.getTax())
+                    .total(item.getTotal())
+                    .build();
+        }).collect(java.util.stream.Collectors.toList());
+
+        java.util.List<SaleDetailsResponse.PaymentDetails> paymentDetailsList = dbPayments.stream().map(p -> {
+            return SaleDetailsResponse.PaymentDetails.builder()
+                    .paymentMethod(p.getPaymentMethod() != null ? p.getPaymentMethod().name() : "")
+                    .amount(p.getAmount())
+                    .notes(p.getNotes())
+                    .paymentDate(p.getPaymentDate())
+                    .build();
+        }).collect(java.util.stream.Collectors.toList());
+
+        return SaleDetailsResponse.builder()
+                .id(sale.getId())
+                .saleNumber(sale.getSaleNumber())
+                .saleDate(sale.getSaleDate())
+                .customerName(sale.getCustomer() != null ? sale.getCustomer().getName() : "Walk-in Customer")
+                .customerMobile(sale.getCustomer() != null ? sale.getCustomer().getMobile() : null)
+                .subtotal(sale.getSubtotal())
+                .discount(sale.getDiscount())
+                .tax(sale.getTax())
+                .grandTotal(sale.getGrandTotal())
+                .paymentStatus(sale.getPaymentStatus() != null ? sale.getPaymentStatus().name() : "")
+                .notes(sale.getNotes())
+                .cashier(sale.getCashier())
+                .items(itemDetailsList)
+                .payments(paymentDetailsList)
+                .build();
     }
 }

@@ -1,6 +1,9 @@
 package com.shopbilling.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import com.shopbilling.dto.response.SaleDetailsResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,5 +32,13 @@ public class SaleController {
             Authentication authentication) {
         Long saleId = saleService.createSale(request, authentication.getName());
         return ResponseEntity.ok(ApiResponse.success("Sale created successfully", saleId));
+    }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CASHIER')")
+    public ResponseEntity<ApiResponse<SaleDetailsResponse>> getSaleDetails(
+            @PathVariable Long id) {
+        SaleDetailsResponse details = saleService.getSaleDetails(id);
+        return ResponseEntity.ok(ApiResponse.success("Sale details fetched successfully", details));
     }
 }

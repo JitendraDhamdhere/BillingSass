@@ -198,3 +198,218 @@
     </div>
   </div>
 </div>
+
+<!-- Payment Collection Modal -->
+<div class="modal-backdrop" *ngIf="showPaymentModal">
+  <div class="glass-modal modal-content payment-modal-content" (click)="$event.stopPropagation()">
+    
+    <div class="modal-header">
+      <h2>Collect Payment</h2>
+      <button mat-icon-button (click)="closePaymentModal()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <div class="modal-body payment-modal-body">
+      <div class="payment-layout">
+        
+        <!-- Left: Summary and Tally -->
+        <div class="payment-summary-section">
+          <div class="bill-total-banner">
+            <span class="banner-label">Total Amount Due</span>
+            <span class="banner-value">₹{{ getGrandTotal() | number:'1.2-2' }}</span>
+          </div>
+
+          <div class="sale-details-card">
+            <h4>Sale Summary</h4>
+            <div class="summary-line">
+              <span>Items:</span>
+              <strong>{{ cart.length }}</strong>
+            </div>
+            <div class="summary-line">
+              <span>Subtotal:</span>
+              <span>₹{{ getSubtotal() | number:'1.2-2' }}</span>
+            </div>
+            <div class="summary-line" *ngIf="discount > 0">
+              <span>Discount:</span>
+              <span class="text-success">- ₹{{ discount | number:'1.2-2' }}</span>
+            </div>
+            <div class="summary-line" *ngIf="getTax() > 0">
+              <span>Tax ({{ taxPercentage }}%):</span>
+              <span>₹{{ getTax() | number:'1.2-2' }}</span>
+            </div>
+          </div>
+
+          <div class="running-tally-card">
+            <h4>Running Tally</h4>
+            <div class="tally-line">
+              <span>Amount Paid:</span>
+              <span class="tally-paid">₹{{ paymentTally.totalPaid | number:'1.2-2' }}</span>
+            </div>
+            <div class="tally-line">
+              <span>Amount Remaining:</span>
+              <span class="tally-remaining" [class.reconciled]="paymentTally.remaining === 0">
+                ₹{{ paymentTally.remaining | number:'1.2-2' }}
+              </span>
+            </div>
+            <div class="tally-line" *ngIf="paymentTally.changeDue > 0">
+              <span>Cash Change Due:</span>
+              <span class="tally-change">₹{{ paymentTally.changeDue | number:'1.2-2' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Inputs and Splits -->
+        <div class="payment-inputs-section">
+          <!-- Payment Method Selector -->
+          <div class="method-selector">
+            <button type="button" class="method-tab" [class.active]="activeMethod === 'CASH'" (click)="selectPaymentMethod('CASH')">
+              <mat-icon>payments</mat-icon>
+              <span>Cash</span>
+              <span class="shortcut-tag">F2</span>
+            </button>
+            <button type="button" class="method-tab" [class.active]="activeMethod === 'UPI'" (click)="selectPaymentMethod('UPI')">
+              <mat-icon>qr_code_2</mat-icon>
+              <span>UPI</span>
+              <span class="shortcut-tag">F3</span>
+            </button>
+            <button type="button" class="method-tab" [class.active]="activeMethod === 'CARD'" (click)="selectPaymentMethod('CARD')">
+              <mat-icon>credit_card</mat-icon>
+              <span>Card</span>
+              <span class="shortcut-tag">F4</span>
+            </button>
+          </div>
+
+          <!-- Active Method Inputs -->
+          <div class="method-inputs-pane">
+            <div *ngIf="paymentError" class="payment-error-banner">
+              <mat-icon>error_outline</mat-icon>
+              <span>{{ paymentError }}</span>
+            </div>
+
+            <!-- Cash Input Panel -->
+            <div *ngIf="activeMethod === 'CASH'" class="input-panel">
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="form-field-half" subscriptSizing="dynamic">
+                  <mat-label>Cash Amount Applied</mat-label>
+                  <input matInput type="number" id="cashAmountInput" [(ngModel)]="cashAmount" (ngModelChange)="updateCashChange()" placeholder="Amount" />
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="form-field-half" subscriptSizing="dynamic">
+                  <mat-label>Cash Tendered</mat-label>
+                  <input matInput type="number" id="cashTenderedInput" [(ngModel)]="cashTendered" (ngModelChange)="updateCashChange()" placeholder="Amount received" />
+                </mat-form-field>
+              </div>
+              <div class="change-display" *ngIf="cashChangeDue > 0">
+                <span>Change to Return:</span>
+                <strong>₹{{ cashChangeDue | number:'1.2-2' }}</strong>
+              </div>
+              <button mat-flat-button color="primary" class="add-payment-btn" (click)="addActivePayment()">
+                <mat-icon>add</mat-icon> Add Cash Payment
+              </button>
+            </div>
+
+            <!-- UPI Input Panel -->
+            <div *ngIf="activeMethod === 'UPI'" class="input-panel upi-panel">
+              <mat-form-field appearance="outline" class="full-width" style="margin-bottom: 8px;" subscriptSizing="dynamic">
+                <mat-label>UPI Amount</mat-label>
+                <input matInput type="number" [(ngModel)]="upiAmount" placeholder="Amount" />
+              </mat-form-field>
+              
+              <div class="upi-qr-wrapper" *ngIf="upiAmount > 0">
+                <img [src]="getUpiQrUrl()" class="upi-qr-img" alt="Scan UPI QR Code" />
+                <div class="upi-status-overlay success" *ngIf="upiStatus === 'success'">
+                  <div class="upi-success-box">
+                    <mat-icon>check_circle</mat-icon>
+                    <span>Payment Received</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="upi-actions-row">
+                <button mat-flat-button color="primary" type="button" class="add-payment-btn" *ngIf="upiStatus === 'pending'" (click)="markUpiAsPaid()">
+                  <mat-icon>done</mat-icon> Mark as Paid
+                </button>
+                <button mat-flat-button color="primary" class="add-payment-btn" *ngIf="upiStatus === 'success'" (click)="addActivePayment()">
+                  <mat-icon>add</mat-icon> Add UPI Payment
+                </button>
+                <button mat-stroked-button color="warn" type="button" *ngIf="upiStatus === 'success'" (click)="selectPaymentMethod('UPI')">
+                  <mat-icon>refresh</mat-icon> Reset/Retry
+                </button>
+              </div>
+            </div>
+
+            <!-- Card Input Panel -->
+            <div *ngIf="activeMethod === 'CARD'" class="input-panel">
+              <mat-form-field appearance="outline" class="full-width" style="margin-bottom: 8px;" subscriptSizing="dynamic">
+                <mat-label>Card Amount</mat-label>
+                <input matInput type="number" [(ngModel)]="cardAmount" placeholder="Amount" />
+              </mat-form-field>
+              
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="form-field-half" subscriptSizing="dynamic">
+                  <mat-label>Terminal Ref No.</mat-label>
+                  <input matInput type="text" class="card-input" [(ngModel)]="cardTerminalRef" placeholder="e.g. T1293812" />
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="form-field-half" subscriptSizing="dynamic">
+                  <mat-label>Approval Code</mat-label>
+                  <input matInput type="text" class="card-input" [(ngModel)]="cardApprovalCode" placeholder="e.g. 981273" />
+                </mat-form-field>
+              </div>
+              
+              <mat-form-field appearance="outline" class="full-width" style="margin-bottom: 12px;" subscriptSizing="dynamic">
+                <mat-label>Card Last 4 Digits</mat-label>
+                <input matInput type="text" class="card-input" maxlength="4" [(ngModel)]="cardLast4" placeholder="e.g. 4321" />
+              </mat-form-field>
+
+              <button mat-flat-button color="primary" class="add-payment-btn" (click)="addActivePayment()">
+                <mat-icon>add</mat-icon> Add Card Payment
+              </button>
+            </div>
+          </div>
+
+          <!-- Added Splits List -->
+          <div class="added-payments-list">
+            <h4>Added Payments</h4>
+            <div class="payments-scroll-area">
+              <div class="no-payments-placeholder" *ngIf="payments.length === 0">
+                <span>No payments added. Use the forms above.</span>
+              </div>
+              
+              <div class="payment-line-item" *ngFor="let p of payments; let i = index">
+                <div class="item-details">
+                  <mat-icon class="method-icon" [color]="p.paymentMethod === 'CASH' ? 'primary' : (p.paymentMethod === 'UPI' ? 'accent' : 'warn')">
+                    {{ p.paymentMethod === 'CASH' ? 'payments' : (p.paymentMethod === 'UPI' ? 'qr_code_2' : 'credit_card') }}
+                  </mat-icon>
+                  <div class="item-meta">
+                    <strong class="item-method-name">{{ p.paymentMethod }}</strong>
+                    <span class="item-notes" *ngIf="p.reference">{{ p.reference }}</span>
+                    <span class="item-notes" *ngIf="p.paymentMethod === 'CASH'">Tendered: ₹{{ p.cashTendered }}</span>
+                  </div>
+                </div>
+                <div class="item-price-actions">
+                  <strong class="item-amt">₹{{ p.amount | number:'1.2-2' }}</strong>
+                  <button mat-icon-button color="primary" type="button" class="small-btn" (click)="editPayment(i)">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button mat-icon-button color="warn" type="button" class="small-btn" (click)="removePayment(i)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button mat-button (click)="closePaymentModal()">Cancel</button>
+      <button mat-flat-button color="primary" [disabled]="!canConfirmPayment()" (click)="confirmPayment()">
+        <mat-icon>done_all</mat-icon> Confirm Payment (Enter)
+      </button>
+    </div>
+
+  </div>
+</div>
