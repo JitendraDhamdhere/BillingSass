@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { SearchService } from '../../core/services/search.service';
+import { ShopSettingsService } from '../../core/services/shop-settings.service';
 import { FormsModule } from '@angular/forms';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -21,7 +22,7 @@ import { MatMenuModule } from '@angular/material/menu';
   templateUrl: './main-layout.component.html',
   styleUrls: ['./main-layout.component.css']
 })
-export class MainLayoutComponent {
+export class MainLayoutComponent implements OnInit {
   isSidebarOpen = true;
   currentUser: any;
 
@@ -35,22 +36,38 @@ export class MainLayoutComponent {
     { label: 'Customers', icon: 'people', route: '/customers' },
     { label: 'Suppliers', icon: 'local_shipping', route: '/suppliers' },
     { label: 'Reports', icon: 'bar_chart', route: '/reports' },
+    { label: 'Shop Settings', icon: 'settings', route: '/settings/profile' }
   ];
+
+  get filteredNavItems() {
+    return this.navItems.filter(item => {
+      if (item.route === '/settings/profile') {
+        return this.currentUser?.roles?.includes('ADMIN');
+      }
+      return true;
+    });
+  }
 
   constructor(
     private authService: AuthService,
     private router: Router,
-    public searchService: SearchService
+    public searchService: SearchService,
+    public settingsService: ShopSettingsService
   ) {
     this.authService.currentUser$.subscribe((user: any) => {
       this.currentUser = user;
     });
 
-    // Clear search query on page navigation
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
         this.searchService.clearQuery();
       }
+    });
+  }
+
+  ngOnInit(): void {
+    this.settingsService.loadSettings().subscribe({
+      error: (err) => console.error('Error loading shop settings in layout', err)
     });
   }
 

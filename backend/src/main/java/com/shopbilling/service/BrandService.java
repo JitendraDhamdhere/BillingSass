@@ -33,6 +33,7 @@ public class BrandService {
         Brand entity = repository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException("Brand not found"));
         BeanUtils.copyProperties(request, entity, "id", "createdAt", "updatedAt");
+        if(entity.getStatus() == null) entity.setStatus("ACTIVE");
         return mapToResponse(repository.save(entity));
     }
 
@@ -50,6 +51,20 @@ public class BrandService {
                 .filter(e -> "ACTIVE".equals(e.getStatus()))
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void delete(Long id) {
+        repository.deleteById(id);
+        repository.flush();
+    }
+
+    @Transactional
+    public void softDelete(Long id) {
+        Brand entity = repository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Brand not found"));
+        entity.setStatus("INACTIVE");
+        repository.save(entity);
     }
 
     private BrandResponse mapToResponse(Brand entity) {

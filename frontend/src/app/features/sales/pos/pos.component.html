@@ -2,21 +2,19 @@
   <!-- Left Side: Products & Search -->
   <div class="pos-products glass-panel">
     <div class="search-bar">
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Search Product (Name, Barcode, Code)</mat-label>
-        <input matInput 
-               [(ngModel)]="searchQuery" 
-               [matAutocomplete]="auto"
-               (ngModelChange)="onSearchChange()"
-               (keydown.enter)="onSearchEnter($event)"
-               placeholder="Scan or type..." />
+      <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+        <mat-label style="font-size: 13px; color: var(--text-muted); margin-left: 8px;">Search Product (Name, Barcode,
+          Code)</mat-label>
+        <input matInput [(ngModel)]="searchQuery" [matAutocomplete]="auto" (ngModelChange)="onSearchChange()"
+          (keydown.enter)="onSearchEnter($event)" placeholder="Scan or type..." />
         <mat-icon matPrefix>search</mat-icon>
         <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onProductSelected($event)">
           <mat-option *ngFor="let product of autocompleteSuggestions" [value]="product.name">
             <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
               <div>
                 <strong style="font-size: 14px; color: var(--text-primary);">{{product.name}}</strong>
-                <span style="font-size: 11px; color: var(--text-muted); margin-left: 8px;">Code: {{product.productCode}}</span>
+                <span style="font-size: 11px; color: var(--text-muted); margin-left: 8px;">Code:
+                  {{product.productCode}}</span>
               </div>
               <span style="font-weight: 600; color: var(--primary);">₹{{product.sellingPrice}}</span>
             </div>
@@ -27,7 +25,8 @@
 
     <div class="product-grid">
       <mat-card class="product-card" *ngFor="let product of filteredProducts" (click)="addToCart(product)">
-        <div class="product-image-placeholder" style="padding: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; height: 90px;">
+        <div class="product-image-placeholder"
+          style="padding: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; height: 65px;">
           <img *ngIf="product.image" [src]="product.image" style="width: 100%; height: 100%; object-fit: cover;" />
           <mat-icon *ngIf="!product.image">image</mat-icon>
         </div>
@@ -52,39 +51,40 @@
     <!-- Customer Selection -->
     <div class="customer-selection">
       <div *ngIf="!selectedCustomer" class="customer-search-wrapper">
-        <mat-form-field appearance="outline" class="customer-search-field">
-          <mat-label>Customer (Name/Mobile/Email)</mat-label>
-          <input matInput 
-                 [(ngModel)]="customerSearchQuery" 
-                 [matAutocomplete]="custAuto"
-                 (ngModelChange)="onCustomerSearchChange()"
-                 (keydown.enter)="onCustomerSearchEnter($event)"
-                 (keydown.tab)="onCustomerSearchEnter($event)"
-                 placeholder="Search customer..." />
+        <mat-form-field appearance="outline" class="customer-search-field" subscriptSizing="dynamic">
+          <mat-label style="font-size: 13px; color: var(--text-muted); margin-left: 8px;">Customer
+            (Name/Mobile/Email)</mat-label>
+          <input matInput [(ngModel)]="customerSearchQuery" [matAutocomplete]="custAuto"
+            (ngModelChange)="onCustomerSearchChange()" (keydown.enter)="onCustomerSearchEnter($event)"
+            (keydown.tab)="onCustomerSearchEnter($event)" placeholder="Search customer..." />
           <mat-icon matPrefix>person_search</mat-icon>
           <mat-autocomplete #custAuto="matAutocomplete" (optionSelected)="onCustomerSelected($event)">
             <mat-option *ngFor="let customer of customerSuggestions" [value]="customer.name">
               <div style="display: flex; flex-direction: column;">
                 <strong style="font-size: 13px; color: var(--text-primary);">{{customer.name}}</strong>
-                <span style="font-size: 11px; color: var(--text-muted);">Mob: {{customer.mobile || 'N/A'}} | {{customer.email || 'N/A'}}</span>
+                <span style="font-size: 11px; color: var(--text-muted);">Mob: {{customer.mobile || 'N/A'}} |
+                  {{customer.email || 'N/A'}}</span>
               </div>
             </mat-option>
           </mat-autocomplete>
         </mat-form-field>
-        <button mat-icon-button color="primary" type="button" (click)="showQuickCustomerModal = true" matTooltip="Quick Add Customer">
+        <button mat-icon-button color="primary" type="button" (click)="showQuickCustomerModal = true"
+          matTooltip="Quick Add Customer" class="add-cust-btn">
           <mat-icon>person_add</mat-icon>
         </button>
       </div>
-      
+
       <div *ngIf="selectedCustomer" class="selected-customer-badge">
         <div class="selected-customer-info">
           <mat-icon color="primary">person</mat-icon>
           <div class="selected-customer-details">
             <span class="selected-customer-name">{{ selectedCustomer.name }}</span>
-            <span class="selected-customer-meta">{{ selectedCustomer.mobile || 'No Mobile' }} | {{ selectedCustomer.email || 'No Email' }}</span>
+            <span class="selected-customer-meta">{{ selectedCustomer.mobile || 'No Mobile' }} | {{
+              selectedCustomer.email || 'No Email' }}</span>
           </div>
         </div>
-        <button mat-icon-button color="warn" type="button" (click)="removeSelectedCustomer()" class="small-btn">
+        <button mat-icon-button color="warn" type="button" (click)="removeSelectedCustomer()"
+          class="small-btn remove-cust-btn">
           <mat-icon>close</mat-icon>
         </button>
       </div>
@@ -95,19 +95,22 @@
         <mat-icon>remove_shopping_cart</mat-icon>
         <p>Cart is empty</p>
       </div>
-      
+
       <div class="cart-item" *ngFor="let item of cart; let i = index">
         <div class="item-info">
           <span class="item-name">{{ item.product.name }}</span>
-          <span class="item-price">₹{{ item.product.sellingPrice }} x {{ item.quantity }}</span>
+          <span class="item-price">₹{{ item.product.sellingPrice }} × {{ item.quantity }}</span>
         </div>
         <div class="item-actions">
           <div class="qty-control">
-            <button mat-icon-button class="small-btn" (click)="item.quantity = item.quantity > 1 ? item.quantity - 1 : 1"><mat-icon>remove</mat-icon></button>
-            <span>{{ item.quantity }}</span>
-            <button mat-icon-button class="small-btn" (click)="item.quantity = item.quantity + 1"><mat-icon>add</mat-icon></button>
+            <button mat-icon-button class="small-btn qty-btn"
+              (click)="item.quantity = item.quantity > 1 ? item.quantity - 1 : 1"><mat-icon>remove</mat-icon></button>
+            <span class="qty-val">{{ item.quantity }}</span>
+            <button mat-icon-button class="small-btn qty-btn"
+              (click)="item.quantity = item.quantity + 1"><mat-icon>add</mat-icon></button>
           </div>
-          <button mat-icon-button color="warn" class="small-btn" (click)="removeFromCart(i)"><mat-icon>close</mat-icon></button>
+          <button mat-icon-button color="warn" class="small-btn remove-item-btn"
+            (click)="removeFromCart(i)"><mat-icon>close</mat-icon></button>
         </div>
       </div>
     </div>
@@ -133,7 +136,7 @@
         <span>Total</span>
         <span>₹{{ getGrandTotal() | number:'1.2-2' }}</span>
       </div>
-      
+
       <button mat-flat-button color="primary" class="checkout-btn" [disabled]="cart.length === 0" (click)="checkout()">
         <mat-icon>payment</mat-icon> Complete Sale
       </button>
@@ -150,25 +153,48 @@
         <mat-icon>close</mat-icon>
       </button>
     </div>
-    
-    <div class="modal-body" style="background: transparent; border: none; box-shadow: none; padding: 0; overflow-y: visible;">
+
+    <div class="modal-body"
+      style="background: transparent; border: none; box-shadow: none; padding: 0; overflow-y: visible;">
       <mat-form-field appearance="outline" class="full-width" style="margin-bottom: 12px; width: 100%;">
         <mat-label>Customer Name</mat-label>
-        <input matInput [(ngModel)]="quickCustomerName" placeholder="Enter name" required (keydown.enter)="saveQuickCustomer()" />
+        <input matInput [(ngModel)]="quickCustomerName" placeholder="Enter name" required
+          (keydown.enter)="saveQuickCustomer()" />
       </mat-form-field>
       <mat-form-field appearance="outline" class="full-width" style="margin-bottom: 12px; width: 100%;">
         <mat-label>Mobile Number</mat-label>
-        <input matInput [(ngModel)]="quickCustomerMobile" placeholder="Enter mobile number" (keydown.enter)="saveQuickCustomer()" />
+        <input matInput [(ngModel)]="quickCustomerMobile" placeholder="Enter mobile number"
+          (keydown.enter)="saveQuickCustomer()" />
       </mat-form-field>
       <mat-form-field appearance="outline" class="full-width" style="margin-bottom: 12px; width: 100%;">
         <mat-label>Email Address</mat-label>
-        <input matInput [(ngModel)]="quickCustomerEmail" placeholder="Enter email address" (keydown.enter)="saveQuickCustomer()" />
+        <input matInput [(ngModel)]="quickCustomerEmail" placeholder="Enter email address"
+          (keydown.enter)="saveQuickCustomer()" />
       </mat-form-field>
     </div>
-    
+
     <div class="modal-actions" style="margin-top: 12px; border-top: 1px solid var(--border); padding-top: 12px;">
       <button mat-button (click)="showQuickCustomerModal = false">Cancel</button>
-      <button mat-flat-button color="primary" [disabled]="!quickCustomerName" (click)="saveQuickCustomer()">Save Customer</button>
+      <button mat-flat-button color="primary" [disabled]="!quickCustomerName" (click)="saveQuickCustomer()">Save
+        Customer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Print Invoice Success Modal -->
+<div class="modal-backdrop" *ngIf="showPrintInvoiceModal" (click)="showPrintInvoiceModal = false">
+  <div class="glass-modal modal-content" (click)="$event.stopPropagation()" style="max-width: 400px; text-align: center; padding: 24px;">
+    <div style="margin-bottom: 16px;">
+      <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #10b981;">check_circle</mat-icon>
+    </div>
+    <h2 style="margin: 0 0 8px 0; font-size: 20px; font-weight: 600;">Sale Completed Successfully!</h2>
+    <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px; line-height: 1.5;">Do you want to print or download the invoice for this sale?</p>
+    
+    <div class="modal-actions" style="display: flex; justify-content: center; gap: 12px; border: none; padding: 0; margin: 0;">
+      <button mat-button (click)="showPrintInvoiceModal = false">Close</button>
+      <button mat-flat-button color="primary" (click)="printCompletedInvoice()">
+        <mat-icon>print</mat-icon> Print/Download Invoice
+      </button>
     </div>
   </div>
 </div>

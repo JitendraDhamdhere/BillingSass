@@ -1,30 +1,188 @@
 .pos-container { 
   display: flex; 
-  gap: 24px; 
+  gap: 12px; 
   height: 100%; 
   box-sizing: border-box;
-  padding-top: 8px;
+  padding-top: 4px;
 }
 .pos-products { 
   flex: 2; 
   display: flex; 
   flex-direction: column; 
-  padding: 20px;
+  padding: 12px;
   box-sizing: border-box;
 }
-.search-bar { margin-bottom: 20px; }
+.search-bar { margin-bottom: 8px; }
 .full-width { width: 100%; }
-.product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; overflow-y: auto; padding-bottom: 20px; align-content: start;}
-.product-card { 
-  cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; 
-  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md) !important;
+
+/* --- 1. Search Bar Adjustments (height: 44px) --- */
+::ng-deep .search-bar .mat-mdc-text-field-wrapper {
+  height: 44px !important;
+  padding: 0 12px !important;
+  display: flex !important;
+  align-items: center !important;
 }
-.product-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: var(--primary-light); }
-.product-image-placeholder { height: 90px; background: rgba(79, 70, 229, 0.05); display: flex; justify-content: center; align-items: center; color: var(--primary-light); border-bottom: 1px solid var(--border); }
-.product-details { padding: 12px !important; text-align: center; }
-.product-details h4 { margin: 0 0 6px 0; font-size: 14px; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.price { font-weight: 700; color: var(--primary); display: block; font-size: 15px;}
-.stock { font-size: 12px; color: var(--text-secondary); margin-top:4px; display:inline-block;}
+::ng-deep .search-bar .mat-mdc-form-field-flex {
+  height: 100% !important;
+  align-items: center !important;
+}
+::ng-deep .search-bar .mat-mdc-form-field-infix {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  min-height: unset !important;
+  display: flex !important;
+  align-items: center !important;
+}
+::ng-deep .search-bar .mat-mdc-form-field-prefix {
+  display: flex !important;
+  align-items: center !important;
+  margin-right: 12px !important;
+  padding: 0 !important;
+}
+::ng-deep .search-bar .mat-mdc-form-field-prefix mat-icon {
+  font-size: 18px !important;
+  width: 18px !important;
+  height: 18px !important;
+  color: var(--text-muted) !important;
+}
+::ng-deep .search-bar .mat-mdc-form-field-label-wrapper {
+  top: 0 !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+}
+::ng-deep .search-bar .mdc-floating-label {
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  left: 36px !important;
+  font-size: 13px !important;
+  transition: transform 0.15s ease, top 0.15s ease, font-size 0.15s ease !important;
+}
+::ng-deep .search-bar .mdc-floating-label--float-above {
+  top: 0px !important;
+  left: 8px !important;
+  transform: translateY(-50%) scale(0.8) !important;
+  background: var(--surface) !important;
+  padding: 0 4px !important;
+  font-size: 13px !important;
+}
+::ng-deep .search-bar input.mat-mdc-input-element {
+  font-size: 13px !important;
+  padding-left: 4px !important;
+}
+
+/* --- 2. Customer Search Field Adjustments (height: 38px) --- */
+::ng-deep .customer-search-field .mat-mdc-text-field-wrapper {
+  height: 38px !important;
+  padding: 0 10px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+::ng-deep .customer-search-field .mat-mdc-form-field-flex {
+  height: 100% !important;
+  align-items: center !important;
+}
+::ng-deep .customer-search-field .mat-mdc-form-field-infix {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  min-height: unset !important;
+  display: flex !important;
+  align-items: center !important;
+}
+::ng-deep .customer-search-field .mat-mdc-form-field-prefix {
+  display: flex !important;
+  align-items: center !important;
+  margin-right: 10px !important;
+  padding: 0 !important;
+}
+::ng-deep .customer-search-field .mat-mdc-form-field-prefix mat-icon {
+  font-size: 16px !important;
+  width: 16px !important;
+  height: 16px !important;
+  color: var(--text-muted) !important;
+}
+::ng-deep .customer-search-field .mat-mdc-form-field-label-wrapper {
+  top: 0 !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+}
+::ng-deep .customer-search-field .mdc-floating-label {
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  left: 32px !important;
+  font-size: 12px !important;
+  transition: transform 0.15s ease, top 0.15s ease, font-size 0.15s ease !important;
+}
+::ng-deep .customer-search-field .mdc-floating-label--float-above {
+  top: 0px !important;
+  left: 8px !important;
+  transform: translateY(-50%) scale(0.8) !important;
+  background: var(--surface) !important;
+  padding: 0 4px !important;
+  font-size: 12px !important;
+}
+::ng-deep .customer-search-field input.mat-mdc-input-element {
+  font-size: 12px !important;
+  padding-left: 4px !important;
+}
+
+/* --- 3. Placeholder Overlap Fix --- */
+/* Hide placeholders when the label is NOT floating above (input is empty and unfocused) */
+::ng-deep .mat-mdc-form-field:not(.mat-form-field-should-float):not(.mat-mdc-form-field-should-float) .mat-mdc-input-element::placeholder {
+  color: transparent !important;
+  opacity: 0 !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+/* Product Grid & Cards */
+.product-grid { 
+  display: grid; 
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); 
+  gap: 10px; 
+  overflow-y: auto; 
+  padding-bottom: 10px; 
+  align-content: start;
+}
+.product-card { 
+  cursor: pointer; 
+  transition: transform 0.2s, box-shadow 0.2s; 
+  background: var(--surface); 
+  border: 1px solid var(--border); 
+  border-radius: var(--radius-sm) !important;
+  height: 145px;
+  display: flex;
+  flex-direction: column;
+}
+.product-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: var(--primary-light); }
+.product-image-placeholder { 
+  height: 65px; 
+  background: rgba(79, 70, 229, 0.05); 
+  display: flex; 
+  justify-content: center; 
+  align-items: center; 
+  color: var(--primary-light); 
+  border-bottom: 1px solid var(--border); 
+}
+.product-details { 
+  padding: 6px 8px !important; 
+  text-align: center; 
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex-grow: 1;
+}
+.product-details h4 { 
+  margin: 0 0 2px 0; 
+  font-size: 13px; 
+  font-weight: 600; 
+  color: var(--text-primary); 
+  white-space: nowrap; 
+  overflow: hidden; 
+  text-overflow: ellipsis; 
+}
+.price { font-weight: 700; color: var(--primary); display: block; font-size: 13px;}
+.stock { font-size: 11px; color: var(--text-secondary); margin-top: 1px; display: inline-block;}
 .low-stock { color: var(--warning); font-weight: 600;}
 
 /* Right Side Cart */
@@ -40,34 +198,90 @@
   overflow: hidden;
   box-sizing: border-box;
 }
-.cart-header { padding: 16px 20px; border-bottom: 1px solid var(--border); background: rgba(248, 250, 252, 0.85); display: flex; justify-content: space-between; align-items: center; }
-.cart-header h3 { margin: 0; font-size: 16px; font-weight: 600; }
-.cart-items { flex: 1; overflow-y: auto; padding: 0 20px; }
-.empty-cart { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--text-muted); }
-.empty-cart mat-icon { font-size: 48px; width: 48px; height: 48px; opacity: 0.5; margin-bottom: 12px; }
-.cart-item { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--border); }
-.item-info { display: flex; flex-direction: column; }
-.item-name { font-weight: 600; font-size: 14px; color: var(--text-primary);}
-.item-price { font-size: 13px; color: var(--text-secondary); margin-top:2px;}
-.item-actions { display: flex; align-items: center; gap: 12px; }
-.qty-control { display: flex; align-items: center; background: var(--background); border-radius: var(--radius-sm); border: 1px solid var(--border);}
-.small-btn { transform: scale(0.8); }
-.qty-control span { min-width: 20px; text-align: center; font-weight: 600; font-size: 14px;}
+.cart-header { 
+  padding: 8px 16px; 
+  border-bottom: 1px solid var(--border); 
+  background: rgba(248, 250, 252, 0.85); 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  height: 48px;
+  box-sizing: border-box;
+}
+.cart-header h3 { margin: 0; font-size: 15px; font-weight: 600; }
+.cart-header ::ng-deep .mat-mdc-icon-button {
+  width: 32px !important;
+  height: 32px !important;
+  padding: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+.cart-header ::ng-deep .mat-mdc-icon-button mat-icon {
+  font-size: 20px !important;
+  width: 20px !important;
+  height: 20px !important;
+}
 
-.cart-summary { padding: 20px; background: rgba(248, 250, 252, 0.5); border-top: 1px solid var(--border); }
-.summary-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; color: var(--text-secondary); font-size: 14px;}
-.grand-total { font-size: 24px; font-weight: 700; color: var(--primary); margin-top: 16px; padding-top: 16px; border-top: 1px dashed var(--border); }
-.minimal-input { width: 70px; background: var(--surface); border: 1px solid var(--border); color: var(--text-primary); padding: 6px 8px; border-radius: var(--radius-sm); text-align: right; outline:none;}
+.cart-items { flex: 1; overflow-y: auto; padding: 0 16px; }
+.empty-cart { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--text-muted); padding: 20px 0; }
+.empty-cart mat-icon { font-size: 40px; width: 40px; height: 40px; opacity: 0.5; margin-bottom: 8px; }
+.empty-cart p { margin: 0; font-size: 13px; }
+
+.cart-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.item-info { display: flex; flex-direction: column; min-width: 0; flex: 1; margin-right: 12px; }
+.item-name { font-weight: 600; font-size: 13px; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.item-price { font-size: 11px; color: var(--text-secondary); margin-top: 1px;}
+.item-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.qty-control { display: flex; align-items: center; background: var(--background); border-radius: var(--radius-sm); border: 1px solid var(--border); height: 28px; }
+.qty-control span.qty-val { min-width: 20px; text-align: center; font-weight: 600; font-size: 12px;}
+
+::ng-deep .qty-btn {
+  width: 24px !important;
+  height: 24px !important;
+  line-height: 24px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transform: none !important;
+  padding: 0 !important;
+}
+::ng-deep .qty-btn mat-icon {
+  font-size: 14px !important;
+  width: 14px !important;
+  height: 14px !important;
+}
+::ng-deep .remove-item-btn {
+  width: 26px !important;
+  height: 26px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transform: none !important;
+  padding: 0 !important;
+}
+::ng-deep .remove-item-btn mat-icon {
+  font-size: 16px !important;
+  width: 16px !important;
+  height: 16px !important;
+}
+
+.cart-summary { padding: 12px 16px; background: rgba(248, 250, 252, 0.5); border-top: 1px solid var(--border); }
+.summary-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; color: var(--text-secondary); font-size: 13px;}
+.grand-total { font-size: 20px; font-weight: 700; color: var(--primary); margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border); }
+.minimal-input { width: 60px; background: var(--surface); border: 1px solid var(--border); color: var(--text-primary); padding: 3px 6px; border-radius: var(--radius-sm); text-align: right; outline:none; font-size: 12px;}
 .minimal-input:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);}
-.checkout-btn { width: 100%; height: 56px; margin-top: 20px; font-size: 16px; font-weight: 600; border-radius: var(--radius-md); letter-spacing: 0.5px;}
+.checkout-btn { width: 100%; height: 44px; margin-top: 12px; font-size: 14px; font-weight: 600; border-radius: var(--radius-sm) !important; letter-spacing: 0.5px;}
 
 /* Customer selection flexbox layout */
 .customer-selection {
-  padding: 12px 20px;
+  padding: 8px 16px;
   border-bottom: 1px solid var(--border);
-  margin-bottom: 8px;
   box-sizing: border-box;
   width: 100%;
+  min-height: 54px;
+  display: flex;
+  align-items: center;
 }
 .customer-search-wrapper {
   display: flex;
@@ -83,26 +297,55 @@
 .customer-search-field mat-form-field {
   width: 100%;
 }
+
+::ng-deep .add-cust-btn {
+  width: 38px !important;
+  height: 38px !important;
+  min-width: 38px !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: var(--radius-sm) !important;
+  border: 1px solid var(--border) !important;
+  background: rgba(79, 70, 229, 0.05) !important;
+  color: var(--primary) !important;
+  transform: none !important;
+}
+::ng-deep .add-cust-btn mat-icon {
+  font-size: 20px !important;
+  width: 20px !important;
+  height: 20px !important;
+}
+
 .selected-customer-badge {
   display: flex;
   justify-content: space-between;
   align-items: center;
   background: rgba(79, 70, 229, 0.08);
-  padding: 8px 12px;
+  padding: 4px 10px;
   border-radius: var(--radius-sm);
   border: 1px solid rgba(79, 70, 229, 0.2);
   width: 100%;
   box-sizing: border-box;
+  height: 38px;
 }
 .selected-customer-info {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   min-width: 0;
+}
+.selected-customer-info mat-icon {
+  font-size: 18px !important;
+  width: 18px !important;
+  height: 18px !important;
 }
 .selected-customer-details {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
   min-width: 0;
 }
 .selected-customer-name {
@@ -110,8 +353,6 @@
   font-weight: 600;
   color: var(--text-primary);
   white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
 }
 .selected-customer-meta {
   font-size: 11px;
@@ -121,7 +362,32 @@
   overflow: hidden;
 }
 
+::ng-deep .remove-cust-btn {
+  width: 24px !important;
+  height: 24px !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transform: none !important;
+}
+::ng-deep .remove-cust-btn mat-icon {
+  font-size: 16px !important;
+  width: 16px !important;
+  height: 16px !important;
+}
+
 @media (max-width: 991px) {
-  .pos-container { flex-direction: column; }
-  .pos-cart { min-height: 400px; }
+  .pos-container { 
+    flex-direction: column; 
+    gap: 12px;
+    height: auto;
+  }
+  .pos-cart { 
+    min-width: 100%;
+    min-height: 450px; 
+  }
+  .pos-products {
+    padding: 12px;
+  }
 }

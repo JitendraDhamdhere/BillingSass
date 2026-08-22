@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ProductService } from '../../../core/services/product.service';
 import { SaleService } from '../../../core/services/sale.service';
 import { CustomerService } from '../../../core/services/customer.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -41,13 +42,17 @@ export class PosComponent implements OnInit {
   quickCustomerMobile = '';
   quickCustomerEmail = '';
 
+  showPrintInvoiceModal = false;
+  completedSaleId: number | null = null;
+
   discount = 0;
   taxPercentage = 0;
 
   constructor(
     private productService: ProductService,
     private saleService: SaleService,
-    private customerService: CustomerService
+    private customerService: CustomerService,
+    private toastService: ToastService
   ) {}
 
   ngOnInit() {
@@ -228,6 +233,11 @@ export class PosComponent implements OnInit {
     this.saleService.createSale(request).subscribe({
       next: (res) => {
         if (res.success) {
+          const saleId = res.data;
+          if (saleId) {
+            this.completedSaleId = saleId;
+            this.showPrintInvoiceModal = true;
+          }
           this.cart = [];
           this.discount = 0;
           this.selectedCustomer = null;
@@ -237,5 +247,26 @@ export class PosComponent implements OnInit {
         console.error('Sale creation failed', err);
       }
     });
+  }
+
+  printInvoice(saleId: number) {
+    this.saleService.getInvoicePdf(saleId).subscribe({
+      next: (blob) => {
+        const file = new Blob([blob], { type: 'application/pdf' });
+        const fileURL = URL.createObjectURL(file);
+        window.open(fileURL, '_blank');
+      },
+      error: (err) => {
+        console.error('Failed to download invoice PDF', err);
+        this.toastService.error('Failed to generate invoice PDF.');
+      }
+    });
+  }
+
+  printCompletedInvoice() {
+    if (this.completedSaleId) {
+      this.printInvoice(this.completedSaleId);
+    }
+    this.showPrintInvoiceModal = false;
   }
 }

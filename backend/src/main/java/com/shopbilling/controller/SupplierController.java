@@ -55,4 +55,20 @@ public class SupplierController {
     public ResponseEntity<ApiResponse<List<SupplierResponse>>> getAllActive() {
         return ResponseEntity.ok(ApiResponse.success("Active suppliers fetched", service.getAllActive()));
     }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
+        try {
+            service.delete(id);
+            return ResponseEntity.ok(ApiResponse.success("Supplier deleted successfully", null));
+        } catch (Exception e) {
+            try {
+                service.softDelete(id);
+                return ResponseEntity.ok(ApiResponse.success("Supplier is in use. Disabled and set to INACTIVE instead.", null));
+            } catch (Exception ex) {
+                return ResponseEntity.status(500).body(ApiResponse.error("Failed to delete supplier"));
+            }
+        }
+    }
 }

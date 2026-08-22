@@ -53,6 +53,20 @@ public class CategoryService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
+    public void delete(Long id) {
+        repository.deleteById(id);
+        repository.flush();
+    }
+
+    @Transactional
+    public void softDelete(Long id) {
+        Category entity = repository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Category not found"));
+        entity.setStatus("INACTIVE");
+        repository.save(entity);
+    }
+
     private CategoryResponse mapToResponse(Category entity) {
         CategoryResponse response = new CategoryResponse();
         BeanUtils.copyProperties(entity, response);

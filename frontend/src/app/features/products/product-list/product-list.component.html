@@ -1,6 +1,9 @@
 <div class="page-header">
-  <h2>Products</h2>
-  <button mat-flat-button color="primary" [routerLink]="['new']">
+  <div>
+    <h2>Products</h2>
+    <p style="color: var(--text-muted); font-size: 13px; margin: 2px 0 0 0;">Manage your items catalog, prices, tax profiles, and stocks.</p>
+  </div>
+  <button mat-flat-button color="primary" (click)="openAddModal()">
     <mat-icon>add</mat-icon> Add Product
   </button>
 </div>
@@ -41,14 +44,21 @@
 
     <ng-container matColumnDef="status">
       <th mat-header-cell *matHeaderCellDef> Status </th>
-      <td mat-cell *matCellDef="let element"> {{element.status}} </td>
+      <td mat-cell *matCellDef="let element">
+        <span class="status-badge" [class.success]="element.status === 'ACTIVE'">
+          {{element.status || 'ACTIVE'}}
+        </span>
+      </td>
     </ng-container>
 
     <ng-container matColumnDef="actions">
       <th mat-header-cell *matHeaderCellDef> Actions </th>
       <td mat-cell *matCellDef="let element">
-        <button mat-icon-button color="primary" [routerLink]="[element.id, 'edit']">
+        <button mat-icon-button color="primary" (click)="openEditModal(element)">
           <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" (click)="openDeleteConfirm(element.id)">
+          <mat-icon>delete</mat-icon>
         </button>
       </td>
     </ng-container>
@@ -64,4 +74,160 @@
     [pageSizeOptions]="[10, 20, 50]"
     (page)="onPageChange($event)">
   </mat-paginator>
+</div>
+
+<!-- Add/Edit Product Modal -->
+<div class="modal-backdrop" *ngIf="showModal" (click)="closeModal()">
+  <div class="glass-modal modal-content" (click)="$event.stopPropagation()" style="max-width: 650px; width: 90%;">
+    <div class="modal-header">
+      <div>
+        <h2 style="margin: 0;">{{ isEditMode ? 'Edit Product' : 'Add Product' }}</h2>
+        <p style="color: var(--text-muted); font-size: 11px; margin: 2px 0 0 0;">Enter product description, categories, purchase/selling price, tax percentage and images.</p>
+      </div>
+      <button mat-icon-button (click)="closeModal()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    
+    <form [formGroup]="form" (ngSubmit)="saveProduct()">
+      <div class="modal-body" style="background: transparent; border: none; box-shadow: none; padding: 12px 0;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
+          
+          <!-- Column 1 -->
+          <div>
+            <mat-form-field appearance="outline" class="full-width" style="margin-bottom: 12px; width: 100%;" subscriptSizing="dynamic">
+              <mat-label>Product Code</mat-label>
+              <input matInput formControlName="productCode" readonly />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width" style="margin-bottom: 12px; width: 100%;" subscriptSizing="dynamic">
+              <mat-label>Product Name *</mat-label>
+              <input matInput formControlName="name" placeholder="Enter product name" required />
+            </mat-form-field>
+            <div *ngIf="form.get('name')?.touched && form.get('name')?.invalid" style="color: var(--warning); font-size: 11px; margin: -8px 0 8px 4px;">
+              Product Name is required.
+            </div>
+
+            <mat-form-field appearance="outline" class="full-width" style="margin-bottom: 12px; width: 100%;" subscriptSizing="dynamic">
+              <mat-label>Category *</mat-label>
+              <mat-select formControlName="categoryId" required>
+                <mat-option *ngFor="let cat of categories" [value]="cat.id">{{cat.name}}</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <div *ngIf="form.get('categoryId')?.touched && form.get('categoryId')?.invalid" style="color: var(--warning); font-size: 11px; margin: -8px 0 8px 4px;">
+              Category selection is required.
+            </div>
+
+            <mat-form-field appearance="outline" class="full-width" style="margin-bottom: 12px; width: 100%;" subscriptSizing="dynamic">
+              <mat-label>Brand *</mat-label>
+              <mat-select formControlName="brandId" required>
+                <mat-option *ngFor="let br of brands" [value]="br.id">{{br.name}}</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <div *ngIf="form.get('brandId')?.touched && form.get('brandId')?.invalid" style="color: var(--warning); font-size: 11px; margin: -8px 0 8px 4px;">
+              Brand selection is required.
+            </div>
+
+            <mat-form-field appearance="outline" class="full-width" style="margin-bottom: 12px; width: 100%;" subscriptSizing="dynamic">
+              <mat-label>Unit *</mat-label>
+              <input matInput formControlName="unit" placeholder="e.g. PCS, KG, LTR" required />
+            </mat-form-field>
+            <div *ngIf="form.get('unit')?.touched && form.get('unit')?.invalid" style="color: var(--warning); font-size: 11px; margin: -8px 0 8px 4px;">
+              Unit type is required.
+            </div>
+          </div>
+
+          <!-- Column 2 -->
+          <div>
+            <mat-form-field appearance="outline" class="full-width" style="margin-bottom: 12px; width: 100%;" subscriptSizing="dynamic">
+              <mat-label>Purchase Price (₹) *</mat-label>
+              <input matInput type="number" formControlName="purchasePrice" min="0" placeholder="0.00" required />
+            </mat-form-field>
+            <div *ngIf="form.get('purchasePrice')?.touched && form.get('purchasePrice')?.invalid" style="color: var(--warning); font-size: 11px; margin: -8px 0 8px 4px;">
+              Valid purchase price is required.
+            </div>
+
+            <mat-form-field appearance="outline" class="full-width" style="margin-bottom: 12px; width: 100%;" subscriptSizing="dynamic">
+              <mat-label>Selling Price (₹) *</mat-label>
+              <input matInput type="number" formControlName="sellingPrice" min="0" placeholder="0.00" required />
+            </mat-form-field>
+            <div *ngIf="form.get('sellingPrice')?.touched && form.get('sellingPrice')?.invalid" style="color: var(--warning); font-size: 11px; margin: -8px 0 8px 4px;">
+              Valid selling price is required.
+            </div>
+            <div *ngIf="form.hasError('priceError')" style="color: var(--warning); font-size: 11px; margin: -8px 0 8px 4px;">
+              Selling price cannot be less than purchase price.
+            </div>
+
+            <mat-form-field appearance="outline" class="full-width" style="margin-bottom: 12px; width: 100%;" subscriptSizing="dynamic">
+              <mat-label>Tax Percentage (%) *</mat-label>
+              <input matInput type="number" formControlName="taxPercentage" min="0" max="100" placeholder="18" required />
+            </mat-form-field>
+            <div *ngIf="form.get('taxPercentage')?.touched && form.get('taxPercentage')?.invalid" style="color: var(--warning); font-size: 11px; margin: -8px 0 8px 4px;">
+              Tax must be between 0% and 100%.
+            </div>
+
+            <mat-form-field appearance="outline" class="full-width" style="margin-bottom: 12px; width: 100%;" subscriptSizing="dynamic">
+              <mat-label>Minimum Stock Alert *</mat-label>
+              <input matInput type="number" formControlName="minimumStock" min="0" placeholder="10" required />
+            </mat-form-field>
+            <div *ngIf="form.get('minimumStock')?.touched && form.get('minimumStock')?.invalid" style="color: var(--warning); font-size: 11px; margin: -8px 0 8px 4px;">
+              Valid minimum stock is required.
+            </div>
+
+            <mat-form-field appearance="outline" class="full-width" style="margin-bottom: 12px; width: 100%;" subscriptSizing="dynamic">
+              <mat-label>Status *</mat-label>
+              <mat-select formControlName="status" required>
+                <mat-option value="ACTIVE">ACTIVE</mat-option>
+                <mat-option value="INACTIVE">INACTIVE</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Product Image Row -->
+        <div style="margin-top: 12px; border-top: 1px solid var(--border); padding-top: 16px;">
+          <label style="display: block; font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px;">Product Image</label>
+          <div style="display: flex; gap: 16px; align-items: center;">
+            <div style="width: 100px; height: 100px; border-radius: var(--radius-md); border: 2px dashed var(--border); display: flex; align-items: center; justify-content: center; overflow: hidden; background: rgba(255,255,255,0.02);">
+              <img *ngIf="form.get('image')?.value" [src]="form.get('image')?.value" style="width: 100%; height: 100%; object-fit: cover;" />
+              <mat-icon *ngIf="!form.get('image')?.value" style="font-size: 32px; width: 32px; height: 32px; color: var(--text-muted);">image</mat-icon>
+            </div>
+            <div>
+              <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/*" style="display: none;" />
+              <button type="button" mat-stroked-button (click)="fileInput.click()" style="margin-right: 8px;">Upload Image</button>
+              <button type="button" mat-button color="warn" *ngIf="form.get('image')?.value" (click)="clearImage()">Clear</button>
+              <p style="font-size: 11px; color: var(--text-muted); margin: 6px 0 0 0;">Supported formats: JPG, PNG. Max size: 2MB.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-actions" style="margin-top: 12px; border-top: 1px solid var(--border); padding-top: 12px; gap: 8px;">
+        <button type="button" mat-button (click)="closeModal()">Cancel</button>
+        <button type="submit" mat-flat-button color="primary" [disabled]="form.invalid || isSaving">
+          <span *ngIf="!isSaving">Save Product</span>
+          <span *ngIf="isSaving">Saving...</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal-backdrop" *ngIf="showDeleteConfirm" (click)="closeDeleteConfirm()">
+  <div class="glass-modal modal-content" (click)="$event.stopPropagation()" style="max-width: 400px; text-align: center;">
+    <div class="modal-header" style="border-bottom: none; padding-bottom: 0;">
+      <h2 style="color: var(--danger); font-size: 18px; width: 100%; text-align: center; margin: 0;">Confirm Delete</h2>
+    </div>
+    <div class="modal-body" style="padding: 16px 24px; text-align: center; color: var(--text-secondary); background: transparent; border: none; box-shadow: none;">
+      <p style="margin: 0; font-size: 14px;">Are you sure you want to delete this product?</p>
+      <p style="font-size: 12px; margin: 8px 0 0 0; color: var(--text-muted);">
+        If it has active inventory or sales records, it will be disabled (set to INACTIVE) instead to preserve transaction history.
+      </p>
+    </div>
+    <div class="modal-actions" style="border-top: none; justify-content: center; padding-top: 0; gap: 12px; margin-top: 8px;">
+      <button mat-button (click)="closeDeleteConfirm()">Cancel</button>
+      <button mat-flat-button color="warn" (click)="confirmDelete()">Delete</button>
+    </div>
+  </div>
 </div>

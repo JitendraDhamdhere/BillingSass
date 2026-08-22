@@ -17,6 +17,7 @@ import { ProductFormComponent } from './features/products/product-form/product-f
 import { CustomerFormComponent } from './features/customers/customer-form/customer-form.component';
 import { SupplierFormComponent } from './features/suppliers/supplier-form/supplier-form.component';
 import { PurchaseFormComponent } from './features/purchases/purchase-form/purchase-form.component';
+import { ShopSettingsComponent } from './features/settings/shop-settings/shop-settings.component';
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { 
@@ -48,6 +49,7 @@ export const routes: Routes = [
       { path: 'inventory/:id/edit', component: PurchaseFormComponent },
       { path: 'purchases/new', component: PurchaseFormComponent },
       { path: 'purchases/:id/edit', component: PurchaseFormComponent },
+      { path: 'settings/profile', component: ShopSettingsComponent },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   },

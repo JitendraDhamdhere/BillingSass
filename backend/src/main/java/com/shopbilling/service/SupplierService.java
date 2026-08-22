@@ -63,6 +63,20 @@ public class SupplierService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
+    public void delete(Long id) {
+        repository.deleteById(id);
+        repository.flush();
+    }
+
+    @Transactional
+    public void softDelete(Long id) {
+        Supplier entity = repository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Supplier not found"));
+        entity.setStatus("INACTIVE");
+        repository.save(entity);
+    }
+
     private SupplierResponse mapToResponse(Supplier entity) {
         SupplierResponse response = new SupplierResponse();
         BeanUtils.copyProperties(entity, response);

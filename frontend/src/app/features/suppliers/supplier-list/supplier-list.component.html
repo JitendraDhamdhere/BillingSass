@@ -1,6 +1,9 @@
 <div class="page-header">
-  <h2>Suppliers</h2>
-  <button mat-flat-button color="primary" [routerLink]="['new']">
+  <div>
+    <h2>Suppliers</h2>
+    <p style="color: var(--text-muted); font-size: 13px; margin: 2px 0 0 0;">Manage your vendor directory, company details, contact information, and addresses.</p>
+  </div>
+  <button mat-flat-button color="primary" (click)="openAddModal()">
     <mat-icon>add</mat-icon> Add Supplier
   </button>
 </div>
@@ -15,31 +18,37 @@
     </ng-container>
 
     <ng-container matColumnDef="name">
-      <th mat-header-cell *matHeaderCellDef> Name </th>
+      <th mat-header-cell *matHeaderCellDef> Contact Name </th>
       <td mat-cell *matCellDef="let element"> {{element.name}} </td>
     </ng-container>
 
     <ng-container matColumnDef="companyName">
       <th mat-header-cell *matHeaderCellDef> Company </th>
-      <td mat-cell *matCellDef="let element"> {{element.companyName}} </td>
+      <td mat-cell *matCellDef="let element"> {{element.companyName || 'N/A'}} </td>
     </ng-container>
 
-    
-        <ng-container matColumnDef="mobile">
-          <th mat-header-cell *matHeaderCellDef> Mobile </th>
-          <td mat-cell *matCellDef="let element"> {{element.mobile}} </td>
-        </ng-container>
+    <ng-container matColumnDef="mobile">
+      <th mat-header-cell *matHeaderCellDef> Mobile </th>
+      <td mat-cell *matCellDef="let element"> {{element.mobile || 'N/A'}} </td>
+    </ng-container>
 
-        <ng-container matColumnDef="status">
+    <ng-container matColumnDef="status">
       <th mat-header-cell *matHeaderCellDef> Status </th>
-      <td mat-cell *matCellDef="let element"> {{element.status}} </td>
+      <td mat-cell *matCellDef="let element">
+        <span class="status-badge" [class.success]="element.status === 'ACTIVE'">
+          {{element.status || 'ACTIVE'}}
+        </span>
+      </td>
     </ng-container>
 
     <ng-container matColumnDef="actions">
       <th mat-header-cell *matHeaderCellDef> Actions </th>
       <td mat-cell *matCellDef="let element">
-        <button mat-icon-button color="primary" [routerLink]="[element.id, 'edit']">
+        <button mat-icon-button color="primary" (click)="openEditModal(element)">
           <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" (click)="openDeleteConfirm(element.id)">
+          <mat-icon>delete</mat-icon>
         </button>
       </td>
     </ng-container>
@@ -55,4 +64,132 @@
     [pageSizeOptions]="[10, 20, 50]"
     (page)="onPageChange($event)">
   </mat-paginator>
+</div>
+
+<!-- Add/Edit Supplier Modal -->
+<div class="modal-backdrop" *ngIf="showModal" (click)="closeModal()">
+  <div class="glass-modal modal-content" (click)="$event.stopPropagation()" style="max-width: 650px; width: 90%;">
+    <div class="modal-header">
+      <div>
+        <h2 style="margin: 0;">{{ isEditMode ? 'Edit Supplier' : 'Add Supplier' }}</h2>
+        <p style="color: var(--text-muted); font-size: 11px; margin: 2px 0 0 0;">Enter supplier profile details, company information, and addresses.</p>
+      </div>
+      <button mat-icon-button (click)="closeModal()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    
+    <form [formGroup]="form" (ngSubmit)="saveSupplier()">
+      <div class="modal-body" style="background: transparent; border: none; box-shadow: none; padding: 12px 0;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
+          
+          <!-- Column 1 -->
+          <div>
+            <mat-form-field appearance="outline" class="full-width" style="margin-bottom: 12px; width: 100%;" subscriptSizing="dynamic">
+              <mat-label>Supplier Code</mat-label>
+              <input matInput formControlName="supplierCode" readonly />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width" style="margin-bottom: 12px; width: 100%;" subscriptSizing="dynamic">
+              <mat-label>Contact Name *</mat-label>
+              <input matInput formControlName="name" placeholder="Enter contact name" required />
+            </mat-form-field>
+            <div *ngIf="form.get('name')?.touched && form.get('name')?.invalid" style="color: var(--warning); font-size: 11px; margin: -8px 0 8px 4px;">
+              Contact Name is required.
+            </div>
+
+            <mat-form-field appearance="outline" class="full-width" style="margin-bottom: 12px; width: 100%;" subscriptSizing="dynamic">
+              <mat-label>Company Name</mat-label>
+              <input matInput formControlName="companyName" placeholder="Enter company name" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width" style="margin-bottom: 12px; width: 100%;" subscriptSizing="dynamic">
+              <mat-label>Mobile Number</mat-label>
+              <input matInput formControlName="mobile" placeholder="10-digit mobile number" />
+            </mat-form-field>
+            <div *ngIf="form.get('mobile')?.touched && form.get('mobile')?.invalid" style="color: var(--warning); font-size: 11px; margin: -8px 0 8px 4px;">
+              Mobile Number must be 10 digits.
+            </div>
+
+            <mat-form-field appearance="outline" class="full-width" style="margin-bottom: 12px; width: 100%;" subscriptSizing="dynamic">
+              <mat-label>Email Address</mat-label>
+              <input matInput type="email" formControlName="email" placeholder="example@email.com" />
+            </mat-form-field>
+            <div *ngIf="form.get('email')?.touched && form.get('email')?.invalid" style="color: var(--warning); font-size: 11px; margin: -8px 0 8px 4px;">
+              Enter a valid email address.
+            </div>
+          </div>
+
+          <!-- Column 2 -->
+          <div>
+            <mat-form-field appearance="outline" class="full-width" style="margin-bottom: 12px; width: 100%;" subscriptSizing="dynamic">
+              <mat-label>Street Address</mat-label>
+              <textarea matInput formControlName="address" placeholder="Enter address details" rows="2"></textarea>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width" style="margin-bottom: 12px; width: 100%;" subscriptSizing="dynamic">
+              <mat-label>City</mat-label>
+              <input matInput formControlName="city" placeholder="City" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width" style="margin-bottom: 12px; width: 100%;" subscriptSizing="dynamic">
+              <mat-label>State / Province</mat-label>
+              <input matInput formControlName="state" placeholder="State" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width" style="margin-bottom: 12px; width: 100%;" subscriptSizing="dynamic">
+              <mat-label>Pincode / ZIP</mat-label>
+              <input matInput formControlName="pincode" placeholder="6-digit pincode" />
+            </mat-form-field>
+            <div *ngIf="form.get('pincode')?.touched && form.get('pincode')?.invalid" style="color: var(--warning); font-size: 11px; margin: -8px 0 8px 4px;">
+              Pincode must be exactly 6 digits.
+            </div>
+
+            <mat-form-field appearance="outline" class="full-width" style="margin-bottom: 12px; width: 100%;" subscriptSizing="dynamic">
+              <mat-label>GST / Tax Number</mat-label>
+              <input matInput formControlName="gstNumber" placeholder="15-digit GSTIN" style="text-transform: uppercase;" />
+            </mat-form-field>
+            <div *ngIf="form.get('gstNumber')?.touched && form.get('gstNumber')?.invalid" style="color: var(--warning); font-size: 11px; margin: -8px 0 8px 4px;">
+              GSTIN must be a valid 15-digit format.
+            </div>
+
+            <mat-form-field appearance="outline" class="full-width" style="margin-bottom: 12px; width: 100%;" subscriptSizing="dynamic">
+              <mat-label>Status *</mat-label>
+              <mat-select formControlName="status" required>
+                <mat-option value="ACTIVE">ACTIVE</mat-option>
+                <mat-option value="INACTIVE">INACTIVE</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-actions" style="margin-top: 12px; border-top: 1px solid var(--border); padding-top: 12px; gap: 8px;">
+        <button type="button" mat-button (click)="closeModal()">Cancel</button>
+        <button type="submit" mat-flat-button color="primary" [disabled]="form.invalid || isSaving">
+          <span *ngIf="!isSaving">Save Supplier</span>
+          <span *ngIf="isSaving">Saving...</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal-backdrop" *ngIf="showDeleteConfirm" (click)="closeDeleteConfirm()">
+  <div class="glass-modal modal-content" (click)="$event.stopPropagation()" style="max-width: 400px; text-align: center;">
+    <div class="modal-header" style="border-bottom: none; padding-bottom: 0;">
+      <h2 style="color: var(--danger); font-size: 18px; width: 100%; text-align: center; margin: 0;">Confirm Delete</h2>
+    </div>
+    <div class="modal-body" style="padding: 16px 24px; text-align: center; color: var(--text-secondary); background: transparent; border: none; box-shadow: none;">
+      <p style="margin: 0; font-size: 14px;">Are you sure you want to delete this supplier?</p>
+      <p style="font-size: 12px; margin: 8px 0 0 0; color: var(--text-muted);">
+        If they have transaction history, they will be disabled (set to INACTIVE) instead to preserve transaction history.
+      </p>
+    </div>
+    <div class="modal-actions" style="border-top: none; justify-content: center; padding-top: 0; gap: 12px; margin-top: 8px;">
+      <button mat-button (click)="closeDeleteConfirm()">Cancel</button>
+      <button mat-flat-button color="warn" (click)="confirmDelete()">Delete</button>
+    </div>
+  </div>
 </div>

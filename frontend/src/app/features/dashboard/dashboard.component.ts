@@ -9,6 +9,7 @@ import { environment } from '../../../environments/environment';
 import { SearchService } from '../../core/services/search.service';
 
 import { RouterModule } from '@angular/router';
+import { SaleService } from '../../core/services/sale.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -27,7 +28,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   constructor(
     private http: HttpClient,
-    public searchService: SearchService
+    public searchService: SearchService,
+    private saleService: SaleService
   ) { }
 
   ngOnInit() {
@@ -145,5 +147,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
     const d = new Date(dateVal);
     return isNaN(d.getTime()) ? String(dateVal) : d.toLocaleString();
+  }
+
+  printInvoicePdf(saleId: number) {
+    this.saleService.getInvoicePdf(saleId).subscribe({
+      next: (blob) => {
+        const file = new Blob([blob], { type: 'application/pdf' });
+        const fileURL = URL.createObjectURL(file);
+        window.open(fileURL, '_blank');
+      },
+      error: (err) => {
+        console.error('Failed to generate invoice PDF', err);
+      }
+    });
   }
 }

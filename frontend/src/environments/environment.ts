@@ -1,4 +1,4 @@
 export const environment = {
-  production: true,
-  apiUrl: 'https://billingsass.onrender.com'
+  production: false,
+  apiUrl: 'http://localhost:8080/api'
 };

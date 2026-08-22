@@ -14,4 +14,8 @@ export class SaleService {
   createSale(data: any): Observable<any> {
     return this.http.post<any>(this.apiUrl, data);
   }
+
+  getInvoicePdf(saleId: number): Observable<Blob> {
+    return this.http.get(`${environment.apiUrl}/invoices/${saleId}/pdf`, { responseType: 'blob' });
+  }
 }

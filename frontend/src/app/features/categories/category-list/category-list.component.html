@@ -1,6 +1,9 @@
 <div class="page-header">
-  <h2>Categories</h2>
-  <button mat-flat-button color="primary" [routerLink]="['new']">
+  <div>
+    <h2>Categories</h2>
+    <p style="color: var(--text-muted); font-size: 13px; margin: 2px 0 0 0;">Manage your product categories, status, and descriptions.</p>
+  </div>
+  <button mat-flat-button color="primary" (click)="openAddModal()">
     <mat-icon>add</mat-icon> Add Category
   </button>
 </div>
@@ -21,14 +24,21 @@
 
     <ng-container matColumnDef="status">
       <th mat-header-cell *matHeaderCellDef> Status </th>
-      <td mat-cell *matCellDef="let element"> {{element.status}} </td>
+      <td mat-cell *matCellDef="let element">
+        <span class="status-badge" [class.success]="element.status === 'ACTIVE'">
+          {{element.status}}
+        </span>
+      </td>
     </ng-container>
 
     <ng-container matColumnDef="actions">
       <th mat-header-cell *matHeaderCellDef> Actions </th>
       <td mat-cell *matCellDef="let element">
-        <button mat-icon-button color="primary" [routerLink]="[element.id, 'edit']">
+        <button mat-icon-button color="primary" (click)="openEditModal(element)">
           <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" (click)="openDeleteConfirm(element.id)">
+          <mat-icon>delete</mat-icon>
         </button>
       </td>
     </ng-container>
@@ -44,4 +54,71 @@
     [pageSizeOptions]="[10, 20, 50]"
     (page)="onPageChange($event)">
   </mat-paginator>
+</div>
+
+<!-- Add/Edit Category Modal -->
+<div class="modal-backdrop" *ngIf="showModal" (click)="closeModal()">
+  <div class="glass-modal modal-content" (click)="$event.stopPropagation()" style="max-width: 400px;">
+    <div class="modal-header">
+      <div>
+        <h2 style="margin: 0;">{{ isEditMode ? 'Edit Category' : 'Add Category' }}</h2>
+        <p style="color: var(--text-muted); font-size: 11px; margin: 2px 0 0 0;">Enter category name, description, and active status.</p>
+      </div>
+      <button mat-icon-button (click)="closeModal()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    
+    <form [formGroup]="form" (ngSubmit)="saveCategory()">
+      <div class="modal-body" style="background: transparent; border: none; box-shadow: none; padding: 12px 0; overflow-y: visible;">
+        <mat-form-field appearance="outline" class="full-width" style="margin-bottom: 12px; width: 100%;" subscriptSizing="dynamic">
+          <mat-label>Category Name *</mat-label>
+          <input matInput formControlName="name" placeholder="Enter category name" required />
+        </mat-form-field>
+        <div *ngIf="form.get('name')?.touched && form.get('name')?.invalid" style="color: var(--warning); font-size: 11px; margin: -8px 0 8px 4px;">
+          Category Name is required.
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width" style="margin-bottom: 12px; width: 100%;" subscriptSizing="dynamic">
+          <mat-label>Description</mat-label>
+          <textarea matInput formControlName="description" placeholder="Enter description" rows="3"></textarea>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width" style="margin-bottom: 12px; width: 100%;" subscriptSizing="dynamic">
+          <mat-label>Status *</mat-label>
+          <mat-select formControlName="status" required>
+            <mat-option value="ACTIVE">ACTIVE</mat-option>
+            <mat-option value="INACTIVE">INACTIVE</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      
+      <div class="modal-actions" style="margin-top: 12px; border-top: 1px solid var(--border); padding-top: 12px; gap: 8px;">
+        <button type="button" mat-button (click)="closeModal()">Cancel</button>
+        <button type="submit" mat-flat-button color="primary" [disabled]="form.invalid || isSaving">
+          <span *ngIf="!isSaving">Save Category</span>
+          <span *ngIf="isSaving">Saving...</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal-backdrop" *ngIf="showDeleteConfirm" (click)="closeDeleteConfirm()">
+  <div class="glass-modal modal-content" (click)="$event.stopPropagation()" style="max-width: 400px; text-align: center;">
+    <div class="modal-header" style="border-bottom: none; padding-bottom: 0;">
+      <h2 style="color: var(--danger); font-size: 18px; width: 100%; text-align: center; margin: 0;">Confirm Delete</h2>
+    </div>
+    <div class="modal-body" style="padding: 16px 24px; text-align: center; color: var(--text-secondary); background: transparent; border: none; box-shadow: none;">
+      <p style="margin: 0; font-size: 14px;">Are you sure you want to delete this category?</p>
+      <p style="font-size: 12px; margin: 8px 0 0 0; color: var(--text-muted);">
+        If it is in use by products, it will be disabled (set to INACTIVE) instead to preserve database integrity.
+      </p>
+    </div>
+    <div class="modal-actions" style="border-top: none; justify-content: center; padding-top: 0; gap: 12px; margin-top: 8px;">
+      <button mat-button (click)="closeDeleteConfirm()">Cancel</button>
+      <button mat-flat-button color="warn" (click)="confirmDelete()">Delete</button>
+    </div>
+  </div>
 </div>

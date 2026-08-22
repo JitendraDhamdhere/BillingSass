@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { ShopSettingsService } from '../../../core/services/shop-settings.service';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -28,8 +29,12 @@ export class LoginComponent {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    public settingsService: ShopSettingsService
   ) {
+    // Load settings for logo on login screen
+    this.settingsService.loadSettings().subscribe();
+
     if (this.authService.isAuthenticated()) {
       this.router.navigate(['/dashboard']);
     }

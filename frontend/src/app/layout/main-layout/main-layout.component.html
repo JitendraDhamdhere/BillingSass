@@ -5,14 +5,17 @@
 
   <!-- Sidebar -->
   <aside class="sidebar glass-sidebar">
-    <div class="sidebar-header">
-      <div class="logo-box"><mat-icon class="logo-icon">storefront</mat-icon></div>
-      <h2 class="brand-text">ShopBilling</h2>
+    <div class="sidebar-header" style="gap: 10px;">
+      <div class="logo-box" style="width: 32px; height: 32px; border-radius: var(--radius-sm); overflow: hidden; display: flex; align-items: center; justify-content: center;">
+        <img *ngIf="settingsService.shopLogo()" [src]="settingsService.shopLogo()" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
+        <mat-icon *ngIf="!settingsService.shopLogo()" class="logo-icon">storefront</mat-icon>
+      </div>
+      <h2 class="brand-text" style="font-size: 16px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;">{{ settingsService.shopName() }}</h2>
     </div>
     
     <div class="sidebar-menu">
       <mat-nav-list>
-        <a mat-list-item *ngFor="let item of navItems" [routerLink]="item.route" routerLinkActive="active-nav">
+        <a mat-list-item *ngFor="let item of filteredNavItems" [routerLink]="item.route" routerLinkActive="active-nav">
           <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
           <div matListItemTitle>{{ item.label }}</div>
         </a>

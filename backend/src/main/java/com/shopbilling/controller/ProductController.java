@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -68,5 +69,21 @@ public class ProductController {
         Page<ProductResponse> data = service.getAll(PageRequest.of(page, size, sortObj));
         return ResponseEntity.ok(PaginatedResponse.success("Products fetched", data.getContent(), 
             data.getNumber(), data.getSize(), data.getTotalElements(), data.getTotalPages()));
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
+        try {
+            service.delete(id);
+            return ResponseEntity.ok(ApiResponse.success("Product deleted successfully", null));
+        } catch (Exception e) {
+            try {
+                service.softDelete(id);
+                return ResponseEntity.ok(ApiResponse.success("Product is in use. Disabled and set to INACTIVE instead.", null));
+            } catch (Exception ex) {
+                return ResponseEntity.status(500).body(ApiResponse.error("Failed to delete product"));
+            }
+        }
     }
 }

@@ -190,7 +190,7 @@
     
     <div class="modal-actions">
       <button mat-button (click)="closeReceiptModal()">Close</button>
-      <button mat-flat-button color="primary" (click)="printCurrentReceipt()">
+      <button mat-flat-button color="primary" (click)="printInvoicePdf(selectedSale.id)" [disabled]="!selectedSale?.id">
         <mat-icon>print</mat-icon> Print
       </button>
     </div>

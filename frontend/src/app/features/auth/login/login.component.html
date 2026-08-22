@@ -5,8 +5,11 @@
   </div>
   <div class="login-card-wrapper glass-card">
     <div class="brand-header">
-      <div class="logo-box"><mat-icon class="brand-icon">storefront</mat-icon></div>
-      <h1>ShopBilling</h1>
+      <div class="logo-box" style="display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: var(--radius-md);">
+        <img *ngIf="settingsService.shopLogo()" [src]="settingsService.shopLogo()" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
+        <mat-icon *ngIf="!settingsService.shopLogo()" class="brand-icon">storefront</mat-icon>
+      </div>
+      <h1>{{ settingsService.shopName() }}</h1>
       <p class="subtitle">Shop Management System</p>
     </div>
 
@@ -14,7 +17,7 @@
       <div class="form-group">
         <label>Username</label>
         <mat-form-field appearance="outline" class="full-width">
-          <input matInput formControlName="username" placeholder="Enter username" />
+          <input matInput formControlName="username" name="username" autocomplete="username" placeholder="Enter username" />
           <mat-icon matPrefix>person_outline</mat-icon>
           <mat-error *ngIf="loginForm.get('username')?.hasError('required')">Username is required</mat-error>
         </mat-form-field>
@@ -23,7 +26,7 @@
       <div class="form-group">
         <label>Password</label>
         <mat-form-field appearance="outline" class="full-width">
-          <input matInput formControlName="password" type="password" placeholder="Enter password" />
+          <input matInput formControlName="password" name="password" autocomplete="current-password" type="password" placeholder="Enter password" />
           <mat-icon matPrefix>lock_outline</mat-icon>
           <mat-error *ngIf="loginForm.get('password')?.hasError('required')">Password is required</mat-error>
         </mat-form-field>

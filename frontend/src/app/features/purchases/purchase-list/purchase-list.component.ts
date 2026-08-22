@@ -77,7 +77,7 @@ import { SearchService } from '../../../core/services/search.service';
     }
     .table-scroll {
       overflow: auto;
-      max-height: 50vh;
+      max-height: calc(100vh - 260px);
     }
     .custom-table { width: 100%; background: transparent; }
     ::ng-deep .mat-mdc-header-cell { 

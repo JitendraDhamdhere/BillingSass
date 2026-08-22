@@ -94,6 +94,20 @@ public class ProductService {
         return productRepository.findAll(pageable).map(this::mapToResponse);
     }
 
+    @Transactional
+    public void delete(Long id) {
+        productRepository.deleteById(id);
+        productRepository.flush();
+    }
+
+    @Transactional
+    public void softDelete(Long id) {
+        Product entity = productRepository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Product not found"));
+        entity.setStatus("INACTIVE");
+        productRepository.save(entity);
+    }
+
     private ProductResponse mapToResponse(Product product) {
         ProductResponse response = new ProductResponse();
         BeanUtils.copyProperties(product, response);

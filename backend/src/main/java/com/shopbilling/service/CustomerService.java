@@ -65,6 +65,20 @@ public class CustomerService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
+    public void delete(Long id) {
+        repository.deleteById(id);
+        repository.flush();
+    }
+
+    @Transactional
+    public void softDelete(Long id) {
+        Customer entity = repository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Customer not found"));
+        entity.setStatus("INACTIVE");
+        repository.save(entity);
+    }
+
     private CustomerResponse mapToResponse(Customer entity) {
         CustomerResponse response = new CustomerResponse();
         BeanUtils.copyProperties(entity, response);
